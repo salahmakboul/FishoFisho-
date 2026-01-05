@@ -1,5 +1,8 @@
-Django==4.2.7
-djangorestframework==3.14.0
-python-dotenv==1.0.0
-psycopg2-binary==2.9.9
+Django==5.2.1
 gunicorn==21.2.0
+whitenoise==6.5.0
+psycopg2-binary==2.9.7
+python-dotenv==1.0.0
+dj-database-url==2.1.0
+django-debug-toolbar==4.2.0
+google-generativeai==0.3.2  # For Gemini AI

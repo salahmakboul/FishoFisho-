@@ -1,2 +1,30 @@
-.env*
-*.backup
+# Environment variables
+.env
+.env.local
+*.env
+.env.*.local
+
+# Django
+*.sqlite3
+*.db
+__pycache__/
+*.py[cod]
+*.class
+*.so
+.Python
+db.sqlite3
+
+# Static files (collected for production)
+/staticfiles/
+
+# Media files
+/media/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
