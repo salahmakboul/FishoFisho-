@@ -3,7 +3,6 @@ from . import views
 from django.conf import settings
 from django.conf.urls.static import static
 urlpatterns = [
-    path('health/', views.health_check, name='health'),
 path('login/',views.loginPage,name="login"),
 path('logout/',views.logoutUSER,name="logout"),
 path('register/',views.registerUser,name="register"),

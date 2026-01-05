@@ -416,6 +416,3 @@ def delete_conversation(request, conversation_id):
     
     return render(request, 'delete_conversation.html', {'conversation': conversation})
 
-def health_check(request):
-    from django.http import HttpResponse
-    return HttpResponse('OK', status=200)
