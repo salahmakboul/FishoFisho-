@@ -144,12 +144,3 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 load_dotenv()
 
-# Get API key
-OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
-
-# Optional: Add a warning if key is missing
-if not OPENAI_API_KEY:
-    print("⚠️ WARNING: OPENAI_API_KEY not found in .env file!")
-
-
-OPENAI_API_KEY = "AIzaSyDleyyX21LtqXBASsamd4TCuPHIkbaCvys"
