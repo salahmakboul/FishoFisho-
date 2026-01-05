@@ -14,6 +14,7 @@ import os
 from pathlib import Path
 import sys
 import os
+import dj_database_url 
 from dotenv import load_dotenv
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,8 +27,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-vi3rghx&ceq4*msazp4u5=-sk8t*qkdvw+wp3v2e@es4ey*=*5'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-ALLOWED_HOSTS = []
+DDEBUG = os.environ.get('DEBUG', 'False') == 'True'  # CHANGED
+
+# CHANGED: Allow Railway and localhost
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+if 'RAILWAY_STATIC_URL' in os.environ:
+    ALLOWED_HOSTS.append(os.environ['RAILWAY_STATIC_URL'])
+ALLOWED_HOSTS.append('.railway.app') 
 
 
 # Application definition
@@ -86,13 +92,23 @@ WSGI_APPLICATION = 'fishofisho.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+if os.environ.get('DATABASE_URL'):
+    # Use PostgreSQL on Railway
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=os.environ.get('DATABASE_URL'),
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
     }
-}
-
+else:
+    # Use SQLite locally
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
