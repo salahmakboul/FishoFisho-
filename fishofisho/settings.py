@@ -168,18 +168,6 @@ print(f"✅ Django settings loaded")
 print(f"🔐 DEBUG: {DEBUG}")
 print(f"🌐 ALLOWED_HOSTS: {ALLOWED_HOSTS}")
 print(f"🔒 SSL Redirect: {SECURE_SSL_REDIRECT} (MUST BE False)")
-print(f"🗄️ Database: {DATABASES['default']['ENGINE']}")
-print(f"🤖 Gemini API: {'✅ SET' if GEMINI_API_KEY else '❌ NOT SET'}")
-print("=" * 60)
-print(f"DATABASE_URL from env: {os.environ.get('DATABASE_URL', 'NOT FOUND')}")
-# Debug database URL
-print('=' * 60)
-print(f'DATABASE_URL exists: {\
-DATABASE_URL\ in os.environ}')
-print(f'DATABASE_URL value: {os.environ.get(\
-DATABASE_URL\, \NOT
-SET\)[:50]}...' if os.environ.get(\DATABASE_URL\) else 'DATABASE_URL: NOT SET')
-print('=' * 60)
 
 # Debug database
 print('=' * 60)
