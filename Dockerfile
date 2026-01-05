@@ -3,4 +3,4 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 COPY . .
-CMD ["sh", "-c", "python manage.py migrate --noinput && gunicorn fishofisho.wsgi:application --bind 0.0.0.0:$PORT"]
+CMD python manage.py migrate --noinput && gunicorn fishofisho.wsgi:application --bind 0.0.0.0:$PORT
