@@ -1,15 +1,14 @@
 #!/bin/bash
-# Debug: Show all environment variables
-echo "=== Environment Variables ==="
-printenv
-echo "============================="
+# Debug
+echo "=== STARTUP SCRIPT ==="
 
-# Get port from Railway environment or use default
-PORT=${PORT:-8000}
-echo "Starting Gunicorn on port: $PORT"
+# Test database
+python test_db.py
 
 # Run migrations
+echo "Running migrations..."
 python manage.py migrate --noinput
 
 # Start Gunicorn
-gunicorn fishofisho.wsgi:application --bind 0.0.0.0:$PORT
+echo "Starting Gunicorn..."
+exec gunicorn fishofisho.wsgi:application --bind 0.0.0.0:${PORT:-8000}
