@@ -16,8 +16,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # ========== SECURITY ==========
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-change-this-in-production')
-DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
-
+DEBUG = True
 # ========== HOST CONFIGURATION ==========
 # FIX: Add exact domain to prevent redirects
 ALLOWED_HOSTS = [
