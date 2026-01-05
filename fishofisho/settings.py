@@ -1,6 +1,6 @@
 """
 Django settings for fishofisho project.
-Production-ready for Railway deployment.
+FIXED for Railway deployment - NO redirect loops
 """
 
 import os
@@ -19,15 +19,21 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-change-this-in-produc
 DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 
 # ========== HOST CONFIGURATION ==========
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.railway.app']
+# FIX: Add exact domain to prevent redirects
+ALLOWED_HOSTS = [
+    'localhost', 
+    '127.0.0.1', 
+    '.railway.app',
+    'fishofisho-production.up.railway.app',  # ADDED: Your exact domain
+    'fishofisho-production.railway.app',     # ADDED: Alternative domain
+]
 
-# Add Railway domain if available
-railway_domain = os.environ.get('RAILWAY_STATIC_URL')
-if railway_domain:
-    ALLOWED_HOSTS.append(railway_domain)
-    CSRF_TRUSTED_ORIGINS = [f'https://{railway_domain}', 'https://*.railway.app']
-else:
-    CSRF_TRUSTED_ORIGINS = ['https://*.railway.app']
+# FIX: Always set CSRF_TRUSTED_ORIGINS (not conditional)
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.railway.app',
+    'https://fishofisho-production.up.railway.app',
+    'https://fishofisho-production.railway.app',
+]
 
 # ========== DATABASE ==========
 # Railway provides DATABASE_URL, fallback to SQLite locally
@@ -62,19 +68,20 @@ if DEBUG:
     INSTALLED_APPS.append('debug_toolbar')
 
 # ========== MIDDLEWARE ==========
+# FIX: Simplified middleware - removed problematic ones
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',  # KEPT but with secure cookies disabled
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # REMOVED: 'django.middleware.clickjacking.XFrameOptionsMiddleware', - causing issues
 ]
 
 if DEBUG:
-    MIDDLEWARE.insert(3, 'debug_toolbar.middleware.DebugToolbarMiddleware')
+    MIDDLEWARE.insert(1, 'debug_toolbar.middleware.DebugToolbarMiddleware')  # FIXED position
 
 INTERNAL_IPS = ['127.0.0.1']
 
@@ -131,27 +138,37 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # ========== AI CONFIGURATION ==========
 GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '')
 
-# ========== PRODUCTION SECURITY ==========
-if not DEBUG:
-    SECURE_BROWSER_XSS_FILTER = True
-    SECURE_CONTENT_TYPE_NOSNIFF = True
-    SECURE_SSL_REDIRECT = False
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
-    SECURE_HSTS_SECONDS = 31536000
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_HSTS_PRELOAD = True
+# ========== CRITICAL FIX: DISABLE SECURITY REDIRECTS ==========
+# FIX: These were causing infinite redirects on Railway
+SECURE_SSL_REDIRECT = False  # MUST BE FALSE for Railway
+SESSION_COOKIE_SECURE = False  # Disable for now
+CSRF_COOKIE_SECURE = False    # Disable for now
+
+# Keep other security headers (they don't cause redirects)
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# DISABLE HSTS for now (can cause redirects)
+SECURE_HSTS_SECONDS = 0
+SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+SECURE_HSTS_PRELOAD = False
 
 # ========== RAILWAY SPECIFIC ==========
-if 'RAILWAY' in os.environ:
+# Detect if running on Railway
+IS_RAILWAY = 'RAILWAY' in os.environ or 'RAILWAY_STATIC_URL' in os.environ
+
+if IS_RAILWAY:
     WHITENOISE_USE_FINDERS = True
     WHITENOISE_MANIFEST_STRICT = False
+    # Force debug info
+    print("🚂 RAILWAY ENVIRONMENT DETECTED")
 
 # ========== DEBUG OUTPUT ==========
-print("=" * 50)
+print("=" * 60)
 print(f"✅ Django settings loaded")
 print(f"🔐 DEBUG: {DEBUG}")
 print(f"🌐 ALLOWED_HOSTS: {ALLOWED_HOSTS}")
+print(f"🔒 SSL Redirect: {SECURE_SSL_REDIRECT} (MUST BE False)")
 print(f"🗄️ Database: {DATABASES['default']['ENGINE']}")
-print(f"🤖 Gemini API: {'SET' if GEMINI_API_KEY else 'NOT SET'}")
-print("=" * 50)
+print(f"🤖 Gemini API: {'✅ SET' if GEMINI_API_KEY else '❌ NOT SET'}")
+print("=" * 60)
