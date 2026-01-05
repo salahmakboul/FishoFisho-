@@ -192,6 +192,7 @@ LOGIN_REDIRECT_URL = 'home'  # Where to redirect after login
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+<<<<<<< HEAD
 # ============================================
 # 15. AI API KEYS (GEMINI / OPENAI)
 # ============================================
@@ -258,3 +259,5 @@ EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
 print("=" * 50)
 print("✅ Settings loaded successfully!")
 print("=" * 50)
+=======
+>>>>>>> ac185296a50deb7deab25e98a3a7d2020dabd32a
