@@ -15,5 +15,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-
-CMD python manage.py migrate && gunicorn fishofisho.wsgi:application --bind 0.0.0.0:$PORT
+# Use bash to run commands with proper error handling
+CMD bash -c "python manage.py migrate --noinput && exec gunicorn fishofisho.wsgi:application --bind 0.0.0.0:$PORT"
