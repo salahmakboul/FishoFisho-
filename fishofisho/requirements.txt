@@ -4,5 +4,5 @@ whitenoise==6.5.0
 psycopg2-binary==2.9.7
 python-dotenv==1.0.0
 dj-database-url==2.1.0
-django-debug-toolbar==4.2.0
-google-generativeai==0.3.2  # For Gemini AI
+Pillow==10.3.0  # Now it will work with Docker!
+google-generativeai==0.3.2
