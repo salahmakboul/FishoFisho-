@@ -1,0 +1,289 @@
+<!-- playground/templates/users_directory.html -->
+{% extends "main.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+  .users-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  .directory-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .directory-header h1 {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #111827;
+  }
+
+  .back-button {
+    background: #f3f4f6;
+    color: #374151;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+
+  .back-button:hover {
+    background: #e5e7eb;
+  }
+
+  .search-box {
+    margin-bottom: 2rem;
+  }
+
+  .search-form {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .search-input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    outline: none;
+  }
+
+  .search-input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
+  .search-button {
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+  }
+
+  .search-button:hover {
+    background: #2563eb;
+  }
+
+  .users-list {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .user-card {
+    background: white;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s;
+    border: 1px solid #e5e7eb;
+  }
+
+  .user-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-color: #3b82f6;
+  }
+
+  .user-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #e5e7eb;
+  }
+
+  .default-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.5rem;
+    border: 3px solid #e5e7eb;
+  }
+
+  .user-info {
+    flex: 1;
+  }
+
+  .user-name {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #111827;
+  }
+
+  .user-username {
+    margin: 0.25rem 0 0 0;
+    color: #6b7280;
+    font-size: 0.95rem;
+  }
+
+  .user-bio {
+    margin: 0.5rem 0 0 0;
+    color: #4b5563;
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+
+  .start-chat-btn {
+    background: #3b82f6;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background-color 0.2s;
+    white-space: nowrap;
+  }
+
+  .start-chat-btn:hover {
+    background: #2563eb;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: #6b7280;
+  }
+
+  .empty-state-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+  }
+
+  .empty-state h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: #374151;
+  }
+
+  .empty-state p {
+    margin-bottom: 1.5rem;
+  }
+</style>
+
+<div class="users-container">
+  <div class="directory-header">
+    <h1>Find Users to Chat With</h1>
+    <a href="{% url 'inbox' %}" class="back-button">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 12H5M12 19l-7-7 7-7" />
+      </svg>
+      Back to Inbox
+    </a>
+  </div>
+
+  <!-- Search Form -->
+  <div class="search-box">
+    <form method="GET" class="search-form">
+      <input type="text" name="search" class="search-input"
+        placeholder="Search by username, first name, or last name..." value="{{ search|default:'' }}"
+        autocomplete="off">
+      <button type="submit" class="search-button">Search</button>
+    </form>
+  </div>
+
+  <!-- Users List -->
+  {% if users %}
+  <div class="users-list">
+    {% for user in users %}
+    <div class="user-card">
+      <!-- User Avatar -->
+      {% if user.userprofile.avatar %}
+      <img src="{{ user.userprofile.avatar.url }}" alt="{{ user.username }}" class="user-avatar">
+      {% else %}
+      <div class="default-avatar">
+        {{ user.username|first|upper }}
+      </div>
+      {% endif %}
+
+      <!-- User Info -->
+      <div class="user-info">
+        <h3 class="user-name">
+          {% if user.first_name or user.last_name %}
+          {{ user.first_name }} {{ user.last_name }}
+          {% else %}
+          {{ user.username }}
+          {% endif %}
+        </h3>
+        <p class="user-username">@{{ user.username }}</p>
+
+        {% if user.userprofile.bio %}
+        <p class="user-bio">{{ user.userprofile.bio|truncatewords:20 }}</p>
+        {% endif %}
+      </div>
+
+      <!-- Start Chat Button -->
+      <a href="{% url 'start-chat' user.id %}" class="start-chat-btn">
+        Start Chat
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-state-icon">👤</div>
+    <h3>No users found</h3>
+    <p>
+      {% if search %}
+      No users match "{{ search }}". Try a different search term.
+      {% else %}
+      No other users found in the system.
+      {% endif %}
+    </p>
+    {% if search %}
+    <a href="{% url 'users-directory' %}" class="start-chat-btn">
+      Clear Search
+    </a>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+
+<script>
+  // Auto-focus search input
+  document.querySelector('.search-input')?.focus();
+
+  // Clear search when clicking X if there's search text
+  const searchInput = document.querySelector('.search-input');
+  const clearBtn = document.querySelector('.clear-search');
+
+  if (searchInput && clearBtn) {
+    searchInput.addEventListener('input', function () {
+      clearBtn.style.display = this.value ? 'block' : 'none';
+    });
+
+    clearBtn.addEventListener('click', function () {
+      searchInput.value = '';
+      searchInput.focus();
+      clearBtn.style.display = 'none';
+    });
+  }
+</script>
+{% endblock %}

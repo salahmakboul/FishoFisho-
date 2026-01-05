@@ -1,0 +1,655 @@
+{% extends "main.html" %}
+{% block content %}
+
+<style>
+    /* Login/Register Styles */
+    .auth-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: calc(100vh - 150px);
+        padding: 2rem;
+    }
+
+    .auth-card {
+        width: 100%;
+        max-width: 420px;
+        background: var(--color-white);
+        border-radius: var(--radius-xl);
+        padding: 4rem 3rem;
+        border: 1px solid var(--color-gray-200);
+        box-shadow: var(--shadow-lg);
+        animation: fadeIn 0.5s ease-out;
+    }
+
+    .auth-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .auth-logo {
+        width: 6rem;
+        height: 6rem;
+        background: linear-gradient(135deg, var(--color-primary), #5856D6);
+        border-radius: var(--radius-lg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+    }
+
+    .auth-logo svg {
+        width: 3rem;
+        height: 3rem;
+        fill: var(--color-white);
+    }
+
+    .auth-header h1 {
+        font-size: 2.8rem;
+        font-weight: 700;
+        color: var(--color-gray-900);
+        margin-bottom: 0.5rem;
+    }
+
+    .auth-header p {
+        color: var(--color-gray-500);
+        font-size: 1.4rem;
+    }
+
+    .auth-form {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+    }
+
+    .form-group label {
+        font-weight: 600;
+        color: var(--color-gray-800);
+        font-size: 1.4rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .form-group label svg {
+        width: 1.6rem;
+        height: 1.6rem;
+        fill: var(--color-gray-500);
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 1.4rem 1.6rem;
+        border: 1px solid var(--color-gray-300);
+        border-radius: var(--radius-md);
+        background: var(--color-white);
+        color: var(--color-gray-900);
+        font-size: 1.5rem;
+        outline: none;
+        transition: var(--transition);
+    }
+
+    .form-input:focus {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px var(--color-primary-light);
+    }
+
+    .form-input::placeholder {
+        color: var(--color-gray-400);
+    }
+
+    .auth-btn {
+        background: var(--color-primary);
+        color: var(--color-white);
+        border: none;
+        padding: 1.4rem;
+        border-radius: var(--radius-md);
+        font-weight: 600;
+        font-size: 1.6rem;
+        cursor: pointer;
+        transition: var(--transition);
+        margin-top: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+    }
+
+    .auth-btn:hover {
+        background: var(--color-primary-dark);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .auth-btn svg {
+        width: 2rem;
+        height: 2rem;
+        fill: var(--color-white);
+    }
+
+    .auth-footer {
+        text-align: center;
+        margin-top: 2.5rem;
+        padding-top: 2rem;
+        border-top: 1px solid var(--color-gray-200);
+    }
+
+    .auth-footer p {
+        color: var(--color-gray-600);
+        font-size: 1.4rem;
+        margin-bottom: 1rem;
+    }
+
+    .auth-link {
+        color: var(--color-primary);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1.5rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: var(--transition);
+    }
+
+    .auth-link:hover {
+        color: var(--color-primary-dark);
+        text-decoration: underline;
+    }
+
+    .auth-link svg {
+        width: 1.6rem;
+        height: 1.6rem;
+        fill: var(--color-primary);
+    }
+
+    /* Error messages */
+    .error-message {
+        background: rgba(255, 59, 48, 0.1);
+        border: 1px solid var(--color-error);
+        color: var(--color-error);
+        padding: 1rem;
+        border-radius: var(--radius-md);
+        font-size: 1.4rem;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+
+    /* Django form errors */
+    .errorlist {
+        list-style: none;
+        margin: 0.5rem 0;
+        padding: 0;
+    }
+
+    .errorlist li {
+        color: var(--color-error);
+        font-size: 1.3rem;
+        margin-top: 0.3rem;
+    }
+
+    /* Form fields for Django forms */
+    .form-group p {
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+    }
+
+    .form-group p label {
+        order: -1;
+    }
+
+    .form-group p input {
+        width: 100%;
+        padding: 1.4rem 1.6rem;
+        border: 1px solid var(--color-gray-300);
+        border-radius: var(--radius-md);
+        background: var(--color-white);
+        color: var(--color-gray-900);
+        font-size: 1.5rem;
+        outline: none;
+        transition: var(--transition);
+    }
+
+    .form-group p input:focus {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px var(--color-primary-light);
+    }
+
+    .form-group p .helptext {
+        font-size: 1.3rem;
+        color: var(--color-gray-500);
+        margin-top: 0.5rem;
+    }
+
+    /* Signup Form Specific Styles */
+    .signup-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .signup-header h2 {
+        font-size: 2.4rem;
+        font-weight: 700;
+        color: var(--color-gray-900);
+        margin-bottom: 0.5rem;
+    }
+
+    .signup-header p {
+        color: var(--color-gray-600);
+        font-size: 1.4rem;
+    }
+
+    .signup-link {
+        color: var(--color-primary);
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .signup-link:hover {
+        text-decoration: underline;
+    }
+
+    .form-row {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: var(--color-gray-800);
+        font-size: 1.4rem;
+        margin-bottom: 0.3rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 1.2rem;
+        border: 1px solid var(--color-gray-300);
+        border-radius: var(--radius-md);
+        background: var(--color-white);
+        color: var(--color-gray-900);
+        font-size: 1.4rem;
+        outline: none;
+        transition: var(--transition);
+    }
+
+    .form-control:focus {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px var(--color-primary-light);
+    }
+
+    .form-control::placeholder {
+        color: var(--color-gray-400);
+    }
+
+    .signup-btn {
+        width: 100%;
+        background: var(--color-gray-900);
+        color: var(--color-white);
+        border: none;
+        padding: 1.2rem;
+        border-radius: var(--radius-md);
+        font-weight: 600;
+        font-size: 1.5rem;
+        cursor: pointer;
+        transition: var(--transition);
+        margin-top: 1rem;
+    }
+
+    .signup-btn:hover {
+        background: var(--color-gray-800);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .terms-text {
+        text-align: center;
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 1px solid var(--color-gray-200);
+        color: var(--color-gray-600);
+        font-size: 1.3rem;
+    }
+
+    .terms-link {
+        color: var(--color-primary);
+        text-decoration: none;
+    }
+
+    .terms-link:hover {
+        text-decoration: underline;
+    }
+
+    /* File Input Styling */
+    .file-input-wrapper {
+        position: relative;
+        width: 100%;
+    }
+
+    .file-input {
+        width: 100%;
+        padding: 1.2rem;
+        border: 1px solid var(--color-gray-300);
+        border-radius: var(--radius-md);
+        background: var(--color-white);
+        color: var(--color-gray-900);
+        font-size: 1.4rem;
+        cursor: pointer;
+    }
+
+    .file-input::-webkit-file-upload-button {
+        background: var(--color-gray-100);
+        border: none;
+        padding: 0.8rem 1.2rem;
+        border-radius: var(--radius-sm);
+        color: var(--color-gray-700);
+        font-weight: 500;
+        cursor: pointer;
+        transition: var(--transition);
+        margin-right: 1rem;
+    }
+
+    .file-input::-webkit-file-upload-button:hover {
+        background: var(--color-gray-200);
+    }
+
+    .file-input:focus {
+        outline: none;
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px var(--color-primary-light);
+    }
+
+    /* Error styling for form rows */
+    .has-error .form-control {
+        border-color: var(--color-error);
+    }
+
+    .has-error .form-label {
+        color: var(--color-error);
+    }
+
+    .error-text {
+        color: var(--color-error);
+        font-size: 1.3rem;
+        margin-top: 0.3rem;
+    }
+
+    .help-text {
+        color: var(--color-gray-500);
+        font-size: 1.3rem;
+        margin-top: 0.3rem;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+        .auth-card {
+            padding: 3rem 2rem;
+            border-radius: var(--radius-lg);
+        }
+
+        .auth-header h1 {
+            font-size: 2.4rem;
+        }
+
+        .signup-header h2 {
+            font-size: 2rem;
+        }
+    }
+</style>
+
+<div class="auth-container">
+    <div class="auth-card">
+        {% if page == 'login' %}
+        <!-- Login Form (unchanged) -->
+        <div class="auth-header">
+            <div class="auth-logo">
+                <svg viewBox="0 0 24 24">
+                    <path
+                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                </svg>
+            </div>
+            <h1>Welcome Back</h1>
+            <p>Sign in to your account to continue</p>
+        </div>
+
+        <form method="POST" action="" class="auth-form">
+            {% csrf_token %}
+
+            {% if form.errors %}
+            <div class="error-message">
+                Please enter a correct username and password.
+            </div>
+            {% endif %}
+
+            <div class="form-group">
+                <label for="username">
+                    <svg viewBox="0 0 24 24">
+                        <path
+                            d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                    </svg>
+                    Username
+                </label>
+                <input type="text" name="username" class="form-input" placeholder="Enter your username" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">
+                    <svg viewBox="0 0 24 24">
+                        <path
+                            d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z" />
+                    </svg>
+                    Password
+                </label>
+                <input type="password" name="password" class="form-input" placeholder="Enter your password" required>
+            </div>
+
+            <button type="submit" class="auth-btn">
+                <svg viewBox="0 0 24 24">
+                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                </svg>
+                Sign In
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            <p>Don't have an account?</p>
+            <a href="{% url 'register' %}" class="auth-link">
+                Create an account
+                <svg viewBox="0 0 24 24">
+                    <path d="M10 17l5-5-5-5v10z" />
+                </svg>
+            </a>
+        </div>
+
+        {% else %}
+        <!-- Register Form with pure CSS -->
+    <div class="signup-header">
+        <h2>Sign up to create account</h2>
+        <p>
+            Already have an account?
+            <a href="{% url 'login' %}" class="signup-link">Sign In</a>
+        </p>
+    </div>
+    
+    <!-- Display form errors -->
+    {% if form.errors %}
+    <div class="error-message">
+        <p><strong>Registration failed!</strong> Please fix the following errors:</p>
+        <ul>
+            {% for field in form %}
+            {% for error in field.errors %}
+            <li>{{ field.label }}: {{ error }}</li>
+            {% endfor %}
+            {% endfor %}
+            {% for error in form.non_field_errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+    
+    <!-- Use Django's form rendering -->
+    <form method="POST" action="" enctype="multipart/form-data" class="auth-form">
+        {% csrf_token %}
+    
+        <!-- Render Django form fields -->
+        {% for field in form %}
+        <div class="form-row {% if field.errors %}has-error{% endif %}">
+            <label for="{{ field.id_for_label }}" class="form-label">
+                {{ field.label }}
+            </label>
+            {{ field }}
+    
+            {% if field.help_text %}
+            <div class="help-text">{{ field.help_text|safe }}</div>
+            {% endif %}
+    
+            {% if field.errors %}
+            <ul class="errorlist">
+                {% for error in field.errors %}
+                <li class="error-text">{{ error }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+        {% endfor %}
+    
+        <button type="submit" class="signup-btn">
+            Create Account
+        </button>
+    </form>
+    
+    <div class="terms-text">
+        <p>
+            By signing up, you agree to our
+            <a href="#" class="terms-link">Terms of Service</a>
+            and
+            <a href="#" class="terms-link">Privacy Policy</a>
+        </p>
+    </div>
+    {% endif %}
+    </div>
+    </div>
+    
+    <!-- Add CSS for Django form widgets -->
+    <style>
+        /* Style Django form inputs to match your design */
+        input[type="text"],
+        input[type="password"],
+        input[type="email"] {
+            width: 100%;
+            padding: 1.2rem;
+            border: 1px solid var(--color-gray-300);
+            border-radius: var(--radius-md);
+            background: var(--color-white);
+            color: var(--color-gray-900);
+            font-size: 1.4rem;
+            outline: none;
+            transition: var(--transition);
+        }
+    
+        input[type="text"]:focus,
+        input[type="password"]:focus,
+        input[type="email"]:focus {
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px var(--color-primary-light);
+        }
+    
+        input::placeholder {
+            color: var(--color-gray-400);
+        }
+    
+        /* Style Django's error list */
+        .errorlist {
+            list-style: none;
+            padding: 0;
+            margin: 0.5rem 0 0 0;
+        }
+    
+        .errorlist li {
+            color: var(--color-error);
+            font-size: 1.3rem;
+            margin-top: 0.3rem;
+        }
+    </style>
+    
+    <script>
+        // Add placeholder attributes to Django form inputs
+        document.addEventListener('DOMContentLoaded', function () {
+            // Add placeholders to form inputs
+            const usernameInput = document.querySelector('#id_username');
+            if (usernameInput) usernameInput.placeholder = 'Enter your username';
+
+            const password1Input = document.querySelector('#id_password1');
+            if (password1Input) password1Input.placeholder = 'Enter your password';
+
+            const password2Input = document.querySelector('#id_password2');
+            if (password2Input) password2Input.placeholder = 'Confirm your password';
+
+            // Add password visibility toggle
+            const passwordFields = document.querySelectorAll('input[type="password"]');
+            passwordFields.forEach(field => {
+                const wrapper = document.createElement('div');
+                wrapper.style.position = 'relative';
+                field.parentNode.insertBefore(wrapper, field);
+                wrapper.appendChild(field);
+
+                const toggleBtn = document.createElement('button');
+                toggleBtn.type = 'button';
+                toggleBtn.innerHTML = `
+                    <svg viewBox="0 0 24 24" width="20" height="20">
+                        <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                    </svg>
+                `;
+                toggleBtn.style.cssText = `
+                    position: absolute;
+                    right: 12px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    background: none;
+                    border: none;
+                    cursor: pointer;
+                    padding: 4px;
+                    border-radius: 4px;
+                    color: var(--color-gray-500);
+                `;
+                wrapper.appendChild(toggleBtn);
+
+                toggleBtn.addEventListener('click', function () {
+                    const type = field.getAttribute('type') === 'password' ? 'text' : 'password';
+                    field.setAttribute('type', type);
+                    this.innerHTML = type === 'password' ? `
+                        <svg viewBox="0 0 24 24" width="20" height="20">
+                            <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                        </svg>
+                    ` : `
+                        <svg viewBox="0 0 24 24" width="20" height="20">
+                            <path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/>
+                        </svg>
+                    `;
+                });
+            });
+        });
+    </script>
+
+{% endblock content %}

@@ -1,0 +1,610 @@
+{% extends "main.html" %}
+{% load static %}
+{% block content %}
+
+<style>
+    .room-container {
+        display: grid;
+        grid-template-columns: 3fr 1fr;
+        gap: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .room-info {
+        margin-bottom: 2rem;
+    }
+
+    .room-title {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+        color: #333;
+    }
+
+    .room-description {
+        color: #666;
+        font-size: 1rem;
+        line-height: 1.5;
+    }
+
+    /* Video Call Button */
+    .video-call-btn {
+        padding: 12px 24px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+    }
+
+    .video-call-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .video-call-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    /* Chat Card Styling */
+    .card {
+        width: 100%;
+        background-color: #fff;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .chat-header {
+        background-color: #333;
+        color: #fff;
+        padding: 10px;
+        font-size: 18px;
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+    }
+
+    .chat-window {
+        height: 400px;
+        overflow-y: scroll;
+        padding: 10px;
+    }
+
+    .message-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .message-item {
+        margin-bottom: 15px;
+        padding: 8px 12px;
+        background-color: #f0f0f0;
+        border-radius: 8px;
+        max-width: 80%;
+    }
+
+    .message-item.user-message {
+        margin-left: auto;
+        background-color: #007bff;
+        color: white;
+    }
+
+    .message-header {
+        font-size: 12px;
+        color: #666;
+        margin-bottom: 4px;
+    }
+
+    .user-message .message-header {
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    .message-content {
+        word-wrap: break-word;
+    }
+
+    .delete-link {
+        float: right;
+        font-size: 12px;
+        color: #ff4444;
+        text-decoration: none;
+        margin-left: 10px;
+    }
+
+    .delete-link:hover {
+        text-decoration: underline;
+    }
+
+    .chat-input {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        border-top: 1px solid #ccc;
+    }
+
+    .message-input {
+        flex: 1;
+        border: 1px solid #ccc;
+        outline: none;
+        padding: 8px 12px;
+        font-size: 14px;
+        border-radius: 4px;
+    }
+
+    .send-button {
+        border: none;
+        outline: none;
+        background-color: #333;
+        color: #fff;
+        font-size: 14px;
+        padding: 8px 16px;
+        margin-left: 10px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .send-button:hover {
+        background-color: rgb(255, 255, 255);
+        color: rgb(0, 0, 0);
+        box-shadow: 0 4px 18px 0 rgba(0, 0, 0, 0.25);
+    }
+
+    /* Participants Sidebar */
+    .participants-sidebar {
+        background: white;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        padding: 1rem;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .participants-header {
+        background-color: #333;
+        color: #fff;
+        padding: 10px;
+        font-size: 18px;
+        margin: -1rem -1rem 1rem -1rem;
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+    }
+
+    .participant-item {
+        display: flex;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    .participant-item:last-child {
+        border-bottom: none;
+    }
+
+    .participant-avatar {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-right: 10px;
+    }
+
+    .participant-username {
+        font-size: 14px;
+        color: #333;
+    }
+
+    /* Login prompt */
+    .login-prompt {
+        text-align: center;
+        padding: 20px;
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        margin-top: 10px;
+    }
+
+    .message-item {
+        margin-bottom: 15px;
+        padding: 12px;
+        background-color: #f0f0f0;
+        border-radius: 18px;
+        max-width: 80%;
+    }
+
+    .message-item.user-message {
+        margin-left: auto;
+        background-color: #007bff;
+        color: white;
+    }
+
+    /* Message header with avatar */
+    .message-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 8px;
+    }
+
+    .message-user-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    /* Avatar styling */
+    .message-avatar {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #fff;
+    }
+
+    .default-avatar {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 12px;
+        border: 2px solid #fff;
+    }
+
+    .user-message .default-avatar {
+        border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    /* User details */
+    .message-user-details {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .message-user-details strong {
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .message-user-details small {
+        font-size: 11px;
+        color: #666;
+        margin-top: 2px;
+    }
+
+    .user-message .message-user-details small {
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    /* Message content */
+    .message-content {
+        font-size: 14px;
+        line-height: 1.4;
+        word-wrap: break-word;
+        padding-left: 38px;
+        /* Space for avatar */
+    }
+
+    /* Delete link */
+    .delete-link {
+        font-size: 11px;
+        color: #ff4444;
+        text-decoration: none;
+        padding: 3px 8px;
+        border-radius: 4px;
+        background: rgba(255, 255, 255, 0.9);
+    }
+
+    .delete-link:hover {
+        background: white;
+        text-decoration: underline;
+    }
+
+    .user-message .delete-link {
+        background: rgba(255, 255, 255, 0.2);
+        color: #ff9999;
+    }
+
+    .user-message .delete-link:hover {
+        background: rgba(255, 255, 255, 0.3);
+    }
+
+    .participant-avatar,
+    .default-participant-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        margin-right: 10px;
+    }
+
+    .participant-avatar {
+        object-fit: cover;
+        border: 2px solid #e5e7eb;
+    }
+
+    .default-participant-avatar {
+        background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: bold;
+        border: 2px solid #e5e7eb;
+    }
+
+    .mention-container {
+        position: relative;
+        flex: 1;
+    }
+
+    .mention-suggestions {
+        position: absolute;
+        bottom: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.375rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        max-height: 200px;
+        overflow-y: auto;
+        display: none;
+        z-index: 1000;
+    }
+
+    .mention-suggestion {
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .mention-suggestion:hover {
+        background: #f3f4f6;
+    }
+
+    .mention-suggestion.active {
+        background: #3b82f6;
+        color: white;
+    }
+
+    /* Daily.co call container */
+    #daily-call-container {
+        margin: 20px 0;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        display: none;
+    }
+
+    #daily-call-frame {
+        width: 100%;
+        height: 500px;
+        border: none;
+    }
+
+    .call-controls {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .control-btn {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .join-btn {
+        background: #10B981;
+        color: white;
+    }
+
+    .leave-btn {
+        background: #EF4444;
+        color: white;
+    }
+
+    .toggle-btn {
+        background: #3B82F6;
+        color: white;
+    }
+</style>
+
+<div class="room-container">
+    <!-- Main Chat Area -->
+    <div>
+        <!-- Room Info -->
+        <div class="room-info">
+            <h1 class="room-title">{{ room.name }}</h1>
+            <p class="room-description">{{ room.description }}</p>
+        </div>
+
+        <!-- Video Call Section -->
+        {% if request.user.is_authenticated and request.user in room.participants.all %}
+        <div class="call-section">
+            <button class="video-call-btn" onclick="startDailyCall()">
+                <span>🎥</span>
+                Start Video Call
+            </button>
+            <div id="daily-call-container">
+                <iframe id="daily-call-frame" allow="camera; microphone; display-capture"></iframe>
+            </div>
+        </div>
+        {% elif request.user.is_authenticated %}
+        <div style="margin-bottom: 20px; padding: 10px; background: #FFF3CD; border-radius: 6px;">
+            ⚠️ Join the room to participate in video calls
+        </div>
+        {% endif %}
+
+        <!-- Chat Card -->
+        <div class="card">
+            <div class="chat-header">Conversation</div>
+
+            <div class="chat-window" id="chatWindow">
+                <ul class="message-list">
+                    {% for message in room_messages %}
+                    <li class="message-item {% if request.user == message.user %}user-message{% endif %}">
+                        <!-- Message Header with Avatar -->
+                        <div class="message-header">
+                            <div class="message-user-info">
+                                <!-- User Avatar -->
+                                {% if message.user.userprofile.avatar %}
+                                <img src="{{ message.user.userprofile.avatar.url }}" alt="{{ message.user.username }}"
+                                    class="message-avatar">
+                                {% else %}
+                                <div class="default-avatar">
+                                    {{ message.user.username|first|upper }}
+                                </div>
+                                {% endif %}
+
+                                <!-- User Info -->
+                                <div class="message-user-details">
+                                    <strong>@{{ message.user.username }}</strong>
+                                    <small>{{ message.created|timesince }} ago</small>
+                                </div>
+                            </div>
+
+                            <!-- Delete Button (only for own messages) -->
+                            {% if request.user == message.user %}
+                            <a href="{% url 'delete-message' message.id %}" class="delete-link">Delete</a>
+                            {% endif %}
+                        </div>
+
+                        <!-- Message Content -->
+                        <div class="message-content">
+                            {{ message.body }}
+                        </div>
+                    </li>
+                    {% empty %}
+                    <div style="text-align: center; padding: 40px; color: #666;">
+                        No messages yet. Start the conversation!
+                    </div>
+                    {% endfor %}
+                </ul>
+            </div>
+            <!-- Message Form -->
+            {% if request.user.is_authenticated %}
+            <form method="POST" action="" class="chat-input">
+                {% csrf_token %}
+                <div class="mention-container">
+                    <input type="text" name="body" class="message-input"
+                        placeholder="Type your message here (use @ to mention someone)" id="messageInput"
+                        onkeyup="showMentionSuggestions(event)">
+                    <div id="mentionSuggestions" class="mention-suggestions"></div>
+                </div>
+                <button type="submit" class="send-button">Send</button>
+            </form>
+            {% else %}
+            <div class="login-prompt">
+                Please <a href="{% url 'login' %}" style="color: #007bff; text-decoration: none;">login</a> to send
+                messages.
+            </div>
+            {% endif %}
+        </div>
+
+    </div>
+
+    <!-- Participants Sidebar -->
+    <div class="participants-sidebar">
+        <div class="participants-header">Participants</div>
+        <div>
+            {% for user in participants %}
+            <div class="participant-item">
+                {% if user.userprofile.avatar %}
+                <img src="{{ user.userprofile.avatar.url }}" alt="{{ user.username }}" class="participant-avatar">
+                {% else %}
+                <div class="default-participant-avatar">
+                    {{ user.username|first|upper }}
+                </div>
+                {% endif %}
+                <span class="participant-username">@{{ user.username }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- JITSI - ALWAYS WORKS -->
+<button onclick="startJitsiCall()" 
+        style="padding: 12px 24px; background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%); 
+               color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; margin-bottom: 20px;">
+    🎥 Start Jitsi Video Call (Always Works)
+</button>
+
+<div id="jitsiContainer" style="display:none; margin: 20px 0;"></div>
+
+<script src='https://meet.jit.si/external_api.js'></script>
+<script>
+    let jitsiApi = null;
+
+    function startJitsiCall() {
+        // Create unique room name
+        const roomName = `fishofisho-{{ room.name|slugify }}-{{ room.id }}-{{ request.user.username|slugify }}-${Date.now()}`;
+
+        const container = document.getElementById('jitsiContainer');
+        container.style.display = 'block';
+        container.innerHTML = '<div id="jitsi-meet"></div>';
+
+        const domain = 'meet.jit.si';
+        const options = {
+            roomName: roomName,
+            width: '100%',
+            height: 500,
+            parentNode: document.querySelector('#jitsi-meet'),
+            userInfo: {
+                displayName: '{{ request.user.username }}',
+                email: '{{ request.user.email|default:"" }}',
+            },
+            configOverwrite: {
+                startWithAudioMuted: false,
+                startWithVideoMuted: false,
+                enableWelcomePage: false,
+            },
+            interfaceConfigOverwrite: {
+                APP_NAME: 'FishoFisho Chat',
+                SHOW_CHROME_EXTENSION_BANNER: false,
+            }
+        };
+
+        jitsiApi = new JitsiMeetExternalAPI(domain, options);
+
+        // Show share link
+        const shareUrl = `https://meet.jit.si/${roomName}`;
+        container.insertAdjacentHTML('beforeend', `
+        <div style="margin-top: 10px; background: #f0f9ff; padding: 10px; border-radius: 6px;">
+            <strong>Share this link with participants:</strong>
+            <input type="text" value="${shareUrl}" 
+                   style="width:100%; padding:8px; margin-top:5px; border:1px solid #ccc; border-radius:4px;" 
+                   readonly>
+            <button onclick="navigator.clipboard.writeText('${shareUrl}')" 
+                    style="margin-top:5px; padding:8px 15px; background:#3b82f6; color:white; border:none; border-radius:4px;">
+                📋 Copy Link
+            </button>
+        </div>
+    `);
+    }
+</script>
+
+{% endblock content %}

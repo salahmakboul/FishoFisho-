@@ -1,0 +1,310 @@
+{% extends "main.html" %}
+{% load static %}
+{% block content %}
+
+<style>
+  .private-chat-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 1rem;
+    height: calc(100vh - 150px);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .chat-header {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    background: white;
+    border-bottom: 1px solid #e5e7eb;
+    border-radius: 0.75rem 0.75rem 0 0;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .back-button {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    margin-right: 1rem;
+    color: #6b7280;
+  }
+
+  .chat-user-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex: 1;
+  }
+
+  .chat-user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #e5e7eb;
+  }
+
+  .default-chat-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    border: 2px solid #e5e7eb;
+  }
+
+  .chat-user-details h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: #111827;
+  }
+
+  .chat-user-details p {
+    margin: 0;
+    font-size: 0.875rem;
+    color: #6b7280;
+  }
+
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+    background: #f9fafb;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .message-bubble {
+    max-width: 70%;
+    padding: 0.75rem 1rem;
+    border-radius: 1rem;
+    position: relative;
+    word-wrap: break-word;
+  }
+
+  .message-sent {
+    align-self: flex-end;
+    background: #3b82f6;
+    color: white;
+    border-bottom-right-radius: 0.25rem;
+  }
+
+  .message-received {
+    align-self: flex-start;
+    background: white;
+    color: #111827;
+    border: 1px solid #e5e7eb;
+    border-bottom-left-radius: 0.25rem;
+  }
+
+  .message-content {
+    font-size: 0.95rem;
+    line-height: 1.4;
+  }
+
+  .message-time {
+    font-size: 0.75rem;
+    opacity: 0.7;
+    margin-top: 0.25rem;
+    text-align: right;
+  }
+
+  .message-received .message-time {
+    color: #6b7280;
+  }
+
+  .message-sent .message-time {
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  .typing-indicator {
+    padding: 1rem;
+    font-style: italic;
+    color: #6b7280;
+    text-align: center;
+  }
+
+  .chat-input-form {
+    padding: 1rem;
+    background: white;
+    border-top: 1px solid #e5e7eb;
+    border-radius: 0 0 0.75rem 0.75rem;
+    display: flex;
+    gap: 0.75rem;
+  }
+
+  .message-input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 2rem;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .message-input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
+  .send-button {
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  .send-button:hover {
+    background: #2563eb;
+  }
+
+  .send-button svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .empty-chat {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #6b7280;
+    text-align: center;
+  }
+
+  .empty-chat-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .message-bubble {
+    animation: fadeIn 0.3s ease-out;
+  }
+</style>
+
+<div class="private-chat-container">
+  <!-- Chat Header -->
+  <div class="chat-header">
+    <button class="back-button" onclick="window.history.back()">←</button>
+
+    <div class="chat-user-info">
+      {% if other_user.userprofile.avatar %}
+      <img src="{{ other_user.userprofile.avatar.url }}" alt="{{ other_user.username }}" class="chat-user-avatar">
+      {% else %}
+      <div class="default-chat-avatar">
+        {{ other_user.username|first|upper }}
+      </div>
+      {% endif %}
+
+      <div class="chat-user-details">
+        <h2>@{{ other_user.username }}</h2>
+        <p>
+          {% if other_user.userprofile.bio %}
+          {{ other_user.userprofile.bio|truncatewords:10 }}
+          {% else %}
+          Online
+          {% endif %}
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div class="chat-messages" id="chatMessages">
+    {% if messages %}
+    {% for message in messages %}
+    <div
+      class="message-bubble {% if message.sender == request.user %}message-sent{% else %}message-received{% endif %}">
+      <div class="message-content">
+        {{ message.content }}
+      </div>
+      <div class="message-time">
+        {{ message.created_at|time:"g:i A" }}
+      </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="empty-chat">
+      <div class="empty-chat-icon">💬</div>
+      <h3>Start a conversation</h3>
+      <p>Send your first message to @{{ other_user.username }}</p>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Message Input -->
+  <form method="POST" class="chat-input-form" id="messageForm">
+    {% csrf_token %}
+    <input type="text" name="content" class="message-input" placeholder="Type a message..." required autocomplete="off">
+    <button type="submit" class="send-button">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+        <path
+          d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z" />
+      </svg>
+    </button>
+  </form>
+</div>
+
+<script>
+  // Auto-scroll to bottom
+  function scrollToBottom() {
+    const container = document.getElementById('chatMessages');
+    container.scrollTop = container.scrollHeight;
+  }
+
+  // Scroll on load
+  window.onload = scrollToBottom;
+
+  // Auto-focus input
+  document.querySelector('.message-input').focus();
+
+  // Simple form submission enhancement
+  document.getElementById('messageForm').addEventListener('submit', function (e) {
+    const input = this.querySelector('.message-input');
+    if (input.value.trim()) {
+      // Scroll to bottom after sending
+      setTimeout(scrollToBottom, 100);
+    }
+  });
+
+  // Send on Enter (but allow Shift+Enter for new line)
+  document.querySelector('.message-input').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      document.getElementById('messageForm').submit();
+    }
+  });
+</script>
+
+{% endblock %}
