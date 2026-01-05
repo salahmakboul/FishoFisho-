@@ -1,7 +1,11 @@
 #!/bin/bash
+# Debug: Show all environment variables
+echo "=== Environment Variables ==="
+printenv
+echo "============================="
+
 # Get port from Railway environment or use default
 PORT=${PORT:-8000}
-
 echo "Starting Gunicorn on port: $PORT"
 
 # Run migrations
