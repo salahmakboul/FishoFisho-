@@ -1,0 +1,267 @@
+{% extends "main.html" %}
+{% block content %}
+
+<style>
+  .notifications-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+  }
+
+  .notifications-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .notifications-header h1 {
+    font-size: 1.875rem;
+    font-weight: bold;
+    color: #111827;
+  }
+
+  .mark-all-read-btn {
+    background: #3b82f6;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    text-decoration: none;
+    font-size: 0.875rem;
+    transition: background-color 0.2s;
+  }
+
+  .mark-all-read-btn:hover {
+    background: #2563eb;
+  }
+
+  .notification-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 0.75rem;
+    transition: background-color 0.2s;
+    border-left: 4px solid transparent;
+  }
+
+  .notification-item.unread {
+    background: #f0f9ff;
+    border-left-color: #3b82f6;
+  }
+
+  .notification-item:hover {
+    background: #f3f4f6;
+  }
+
+  .notification-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 1rem;
+    object-fit: cover;
+  }
+
+  .default-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-right: 1rem;
+  }
+
+  .notification-content {
+    flex: 1;
+  }
+
+  .notification-text {
+    margin-bottom: 0.25rem;
+    color: #374151;
+  }
+
+  .notification-text strong {
+    color: #111827;
+  }
+
+  .notification-time {
+    font-size: 0.75rem;
+    color: #6b7280;
+  }
+
+  .notification-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .notification-action-btn {
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+
+  .mark-read-btn {
+    background: #10b981;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+
+  .mark-read-btn:hover {
+    background: #059669;
+  }
+
+  .view-room-btn {
+    background: #3b82f6;
+    color: white;
+  }
+
+  .view-room-btn:hover {
+    background: #2563eb;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: #6b7280;
+  }
+
+  .empty-state-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+  }
+
+  .notification-badge {
+    position: relative;
+  }
+
+  .badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #ef4444;
+    color: white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: bold;
+  }
+</style>
+
+<div class="notifications-container">
+  <div class="notifications-header">
+    <h1>Notifications</h1>
+    {% if unread_count > 0 %}
+    <a href="{% url 'mark-all-read' %}" class="mark-all-read-btn">
+      Mark all as read
+    </a>
+    {% endif %}
+  </div>
+
+  {% if notifications %}
+  <div class="notifications-list">
+    {% for notification in notifications %}
+    <div class="notification-item {% if not notification.is_read %}unread{% endif %}"
+      id="notification-{{ notification.id }}">
+      <!-- Avatar -->
+      {% if notification.sender.userprofile.avatar %}
+      <img src="{{ notification.sender.userprofile.avatar.url }}" alt="{{ notification.sender.username }}"
+        class="notification-avatar">
+      {% else %}
+      <div class="default-avatar">
+        {{ notification.sender.username|first|upper }}
+      </div>
+      {% endif %}
+
+      <!-- Content -->
+      <div class="notification-content">
+        <p class="notification-text">
+          <strong>@{{ notification.sender.username }}</strong>
+          {{ notification.message }}
+        </p>
+        <span class="notification-time">
+          {{ notification.created_at|timesince }} ago
+        </span>
+      </div>
+
+      <!-- Actions -->
+      <div class="notification-actions">
+        {% if not notification.is_read %}
+        <button class="notification-action-btn mark-read-btn" onclick="markAsRead('{{ notification.id }}')">
+          ✓ Read
+        </button>
+        {% endif %}
+
+        {% if notification.room %}
+        <a href="{% url 'room' notification.room.id %}" class="notification-action-btn view-room-btn">
+          View
+        </a>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-state-icon">🔔</div>
+    <h3>No notifications yet</h3>
+    <p>When someone mentions you or interacts with your content, it will appear here.</p>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+  function markAsRead(notificationId) {
+    fetch(`/notifications/read/${notificationId}/`, {
+      method: 'POST',
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-CSRFToken': '{{ csrf_token }}'
+      }
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          const notificationElement = document.getElementById(`notification-${notificationId}`);
+          notificationElement.classList.remove('unread');
+
+          // Update badge count
+          updateNotificationBadge();
+        }
+      });
+  }
+
+  function updateNotificationBadge() {
+    fetch('/notifications/unread-count/')
+      .then(response => response.json())
+      .then(data => {
+        const badge = document.querySelector('.notification-badge .badge');
+        if (badge) {
+          if (data.count > 0) {
+            badge.textContent = data.count;
+            badge.style.display = 'flex';
+          } else {
+            badge.style.display = 'none';
+          }
+        }
+      });
+  }
+
+  // Update badge on page load
+  document.addEventListener('DOMContentLoaded', updateNotificationBadge);
+</script>
+
+{% endblock %}

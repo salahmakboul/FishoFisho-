@@ -1,0 +1,452 @@
+{% extends "main.html" %}
+{% load static %}
+{% block content %}
+<main class="layout layout--3">
+  <div class="container">
+    <!-- Topics Start -->
+    <div class="topics">
+      <div class="topics__header">
+        <h2>Browse Topics</h2>
+      </div>
+      <ul class="topics__list">
+        <li>
+          <a href="{% url 'home' %}" class="{% if not q %}active{% endif %}">All <span>{{ topics.count }}</span></a>
+        </li>
+        {% for topic in topics %}
+        <li>
+          <a href="{% url 'home' %}?q={{ topic.name }}" class="{% if q == topic.name %}active{% endif %}">
+            {{ topic.name }} <span>{{ topic.room_set.count }}</span>
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+    <!-- Topics End -->
+
+    <!-- Room List Start -->
+    <div class="roomList">
+      <!-- REMOVED MOBILE MENU SECTION -->
+
+      <div class="roomList__header">
+        <div class="roomList__headerTop">
+          <div>
+            <h2>Study Rooms</h2>
+            <p>{{ room_count }} Room{{ room_count|pluralize }} available</p>
+          </div>
+        </div>
+
+        <!-- CREATE ROOM BUTTON MOVED HERE - BELOW THE HEADER -->
+        <div class="roomList__headerBottom">
+          {% if request.user.is_authenticated %}
+          <a class="btn btn--main create-room-btn" href="{% url 'create-room' %}">
+            <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+              <title>add</title>
+              <path
+                d="M16.943 0.943h-1.885v14.115h-14.115v1.885h14.115v14.115h1.885v-14.115h14.115v-1.885h-14.115v-14.115z">
+              </path>
+            </svg>
+            Create Room
+          </a>
+          {% else %}
+          <a class="btn btn--main create-room-btn" href="{% url 'login' %}">
+            <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+              <title>login</title>
+              <path d="M10 17l5-5-5-5v10z" />
+            </svg>
+            Login to Create Room
+          </a>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- REAL ROOMS - Dynamic from database -->
+      {% for room in rooms %}
+      <div class="roomListRoom">
+        <div class="roomListRoom__header">
+          <a href="{% url 'user-profile' room.host.id %}" class="roomListRoom__author">
+            <div class="avatar avatar--small {% if room.host.is_online %}active{% endif %}">
+              {% if room.host.userprofile.avatar %}
+              <img src="{{ room.host.userprofile.avatar.url }}" alt="{{ room.host.username }}" />
+              {% else %}
+              <img src="{% static 'images/default-avatar.jpg' %}" alt="{{ room.host.username }}" />
+              {% endif %}
+            </div>
+            <span>@{{ room.host.username }}</span>
+          </a>
+          <div class="roomListRoom__actions">
+            <span>{{ room.created|timesince }} ago</span>
+            {% if request.user == room.host %}
+            <a href="{% url 'update-room' room.id %}">Edit</a>
+            <a href="{% url 'delete-room' room.id %}">Delete</a>
+            {% endif %}
+          </div>
+        </div>
+        <div class="roomListRoom__content">
+          <a href="{% url 'room' room.id %}">{{ room.name }}</a>
+          <p>{{ room.description|truncatewords:30 }}</p>
+        </div>
+        <div class="roomListRoom__meta">
+          <a href="{% url 'room' room.id %}" class="roomListRoom__joined">
+            <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+              <title>user-group</title>
+              <path
+                d="M30.539 20.766c-2.69-1.547-5.75-2.427-8.92-2.662 0.649 0.291 1.303 0.575 1.918 0.928 0.715 0.412 1.288 1.005 1.71 1.694 1.507 0.419 2.956 1.003 4.298 1.774 0.281 0.162 0.456 0.487 0.456 0.85v4.65h-4v2h5c0.553 0 1-0.447 1-1v-5.65c0-1.077-0.56-2.067-1.461-2.584z">
+              </path>
+              <path
+                d="M22.539 20.766c-6.295-3.619-14.783-3.619-21.078 0-0.901 0.519-1.461 1.508-1.461 2.584v5.65c0 0.553 0.447 1 1 1h22c0.553 0 1-0.447 1-1v-5.651c0-1.075-0.56-2.064-1.461-2.583zM22 28h-20v-4.65c0-0.362 0.175-0.688 0.457-0.85 5.691-3.271 13.394-3.271 19.086 0 0.282 0.162 0.457 0.487 0.457 0.849v4.651z">
+              </path>
+              <path
+                d="M19.502 4.047c0.166-0.017 0.33-0.047 0.498-0.047 2.757 0 5 2.243 5 5s-2.243 5-5 5c-0.168 0-0.332-0.030-0.498-0.047-0.424 0.641-0.944 1.204-1.513 1.716 0.651 0.201 1.323 0.331 2.011 0.331 3.859 0 7-3.141 7-7s-3.141-7-7-7c-0.688 0-1.36 0.131-2.011 0.331 0.57 0.512 1.089 1.075 1.513 1.716z">
+              </path>
+              <path
+                d="M12 16c3.859 0 7-3.141 7-7s-3.141-7-7-7c-3.859 0-7 3.141-7 7s3.141 7 7 7zM12 4c2.757 0 5 2.243 5 5s-2.243 5-5 5-5-2.243-5-5c0-2.757 2.243-5 5-5z">
+              </path>
+            </svg>
+            {{ room.participants.count }} joined
+          </a>
+          <p class="roomListRoom__topic">{{ room.topic.name }}</p>
+        </div>
+      </div>
+      {% empty %}
+      <div class="empty-state">
+        <div class="empty-state-icon">
+          <svg width="64" height="64" viewBox="0 0 24 24">
+            <path fill="currentColor"
+              d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8l8 5 8-5v10zm-8-7L4 6h16l-8 5z" />
+          </svg>
+        </div>
+        <h3>No rooms found</h3>
+        <p>{% if q %}No rooms match "{{ q }}"{% else %}No rooms have been created yet{% endif %}</p>
+        {% if request.user.is_authenticated %}
+        <a href="{% url 'create-room' %}" class="btn btn--main">Create First Room</a>
+        {% else %}
+        <a href="{% url 'login' %}" class="btn btn--main">Login to Create Room</a>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    <!-- Room List End -->
+
+    <!-- Activities Start -->
+    <div class="activities">
+      <div class="activities__header">
+        <h2>Recent Activities</h2>
+      </div>
+
+      {% for message in room_messages %}
+      <div class="activities__box">
+        <div class="activities__boxHeader roomListRoom__header">
+          <a href="{% url 'user-profile' message.user.id %}" class="roomListRoom__author">
+            <div class="avatar avatar--small {% if message.user.is_online %}active{% endif %}">
+              {% if message.user.userprofile.avatar %}
+              <img src="{{ message.user.userprofile.avatar.url }}" alt="{{ message.user.username }}" />
+              {% else %}
+              <img src="{% static 'images/default-avatar.jpg' %}" alt="{{ message.user.username }}" />
+              {% endif %}
+            </div>
+
+            <p>
+              @{{ message.user.username }}
+              <span>{{ message.created|timesince }} ago</span>
+            </p>
+          </a>
+          {% if request.user == message.user %}
+          <div class="roomListRoom__actions">
+            <a href="{% url 'delete-message' message.id %}">
+              <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+                <title>remove</title>
+                <path
+                  d="M27.314 6.019l-1.333-1.333-9.98 9.981-9.981-9.981-1.333 1.333 9.981 9.981-9.981 9.98 1.333 1.333 9.981-9.98 9.98 9.98 1.333-1.333-9.98-9.98 9.98-9.981z">
+                </path>
+              </svg>
+            </a>
+          </div>
+          {% endif %}
+        </div>
+        <div class="activities__boxContent">
+          <p>replied to "<a href="{% url 'room' message.room.id %}">{{ message.room.name }}</a>"</p>
+          <div class="activities__boxRoomContent">
+            {{ message.body|truncatewords:20 }}
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="empty-state">
+        <div class="empty-state-icon">
+          <svg width="64" height="64" viewBox="0 0 24 24">
+            <path fill="currentColor"
+              d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z" />
+          </svg>
+        </div>
+        <h3>No recent activity</h3>
+        <p>{% if q %}No activity for "{{ q }}"{% else %}Be the first to create a room or send a message!{% endif %}</p>
+      </div>
+      {% endfor %}
+
+      <!-- CREATE ROOM BUTTON FOR EMPTY STATE IN ACTIVITIES -->
+      <div class="create-room-prompt">
+        <a class="btn btn--main" href="{% url 'create-room' %}"
+          style="display: flex !important; visibility: visible !important; opacity: 1 !important; background-color: black !important; color: white !important;">
+          <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+            <title>add</title>
+            <path
+              d="M16.943 0.943h-1.885v14.115h-14.115v1.885h14.115v14.115h1.885v-14.115h14.115v-1.885h-14.115v-14.115z">
+            </path>
+          </svg>
+          create-room
+        </a>
+      </div>
+    </div>
+    <!-- Activities End -->
+  </div>
+
+  <style>
+    /* Force desktop layout */
+    .layout--3 {
+      display: grid !important;
+      grid-template-columns: 300px 1fr 300px !important;
+      gap: 20px !important;
+    }
+
+    .container {
+      max-width: 100% !important;
+      width: 100% !important;
+      padding: 20px !important;
+    }
+
+    /* Room list header styling - UPDATED */
+    .roomList__header {
+      display: block !important;
+      /* Changed from flex to block */
+      margin-bottom: 24px;
+      width: 100% !important;
+    }
+
+    .roomList__headerTop {
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+      margin-bottom: 16px !important;
+      /* Space between title and button */
+    }
+
+    .roomList__headerTop h2 {
+      margin: 0 !important;
+    }
+
+    .roomList__headerBottom {
+      display: flex !important;
+      justify-content: flex-start !important;
+      /* Button aligned to left */
+      margin-top: 10px !important;
+    }
+
+    .create-room-btn {
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+      padding: 10px 20px !important;
+      background-color: #1d1d1f !important;
+      color: #ffffff !important;
+      border-radius: 99px !important;
+      text-decoration: none !important;
+      font-weight: 500 !important;
+      border: none !important;
+      cursor: pointer !important;
+      width: auto !important;
+    }
+
+    .create-room-btn:hover {
+      background-color: #333336 !important;
+    }
+
+    .create-room-btn svg {
+      fill: currentColor !important;
+      width: 18px !important;
+      height: 18px !important;
+    }
+
+    /* Ensure proper spacing */
+    .roomList {
+      margin-top: 0 !important;
+      position: relative !important;
+      z-index: 1 !important;
+    }
+
+    /* Remove any mobile-specific hiding/showing */
+    .mobile-menu,
+    .mobile-menuItems {
+      display: none !important;
+    }
+
+    /* Ensure all elements are visible in desktop layout */
+    .topics,
+    .activities {
+      display: block !important;
+    }
+    .avatar {
+        position: relative;
+        display: inline-block;
+    }
+    
+    .avatar--small {
+        width: 36px;
+        height: 36px;
+    }
+    
+    .avatar--medium {
+        width: 48px;
+        height: 48px;
+    }
+    
+    .avatar--large {
+        width: 64px;
+        height: 64px;
+    }
+    
+    /* Avatar Image */
+    .avatar img {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #fff;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+    
+    /* Hover effect */
+    .avatar:hover img {
+        transform: scale(1.05);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    
+    /* Online Status Indicator */
+    .avatar.active::after {
+        content: '';
+        position: absolute;
+        bottom: 2px;
+        right: 2px;
+        width: 10px;
+        height: 10px;
+        background-color: #10B981; /* Green for online */
+        border-radius: 50%;
+        border: 2px solid #fff;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        z-index: 1;
+        animation: pulse 2s infinite;
+    }
+    
+    /* Offline indicator (optional) */
+    .avatar:not(.active)::after {
+        content: '';
+        position: absolute;
+        bottom: 2px;
+        right: 2px;
+        width: 10px;
+        height: 10px;
+        background-color: #9CA3AF; /* Gray for offline */
+        border-radius: 50%;
+        border: 2px solid #fff;
+        opacity: 0.7;
+    }
+    
+    /* Different status colors (optional) */
+    .avatar.active.idle::after {
+        background-color: #F59E0B; /* Amber for idle */
+    }
+    
+    .avatar.active.busy::after {
+        background-color: #EF4444; /* Red for busy */
+    }
+    
+    .avatar.active.away::after {
+        background-color: #F59E0B;
+        animation: none; /* No pulse for away */
+    }
+    
+    /* Pulsing animation for online status */
+    @keyframes pulse {
+        0% {
+            transform: scale(0.95);
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+        }
+        
+        70% {
+            transform: scale(1);
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0);
+        }
+        
+        100% {
+            transform: scale(0.95);
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+        }
+    }
+    
+    /* For dark mode compatibility */
+    @media (prefers-color-scheme: dark) {
+        .avatar img {
+            border-color: #374151;
+        }
+        
+        .avatar.active::after {
+            border-color: #374151;
+        }
+        
+        .avatar:not(.active)::after {
+            border-color: #374151;
+        }
+    }
+    
+    /* Avatar in messages - specific styling */
+    .message-avatar {
+        width: 36px;
+        height: 36px;
+        margin-right: 10px;
+        flex-shrink: 0;
+    }
+    
+    /* Avatar in user profile */
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        margin-bottom: 20px;
+    }
+    
+    .profile-avatar.active::after {
+        width: 16px;
+        height: 16px;
+        bottom: 6px;
+        right: 6px;
+        border-width: 3px;
+    }
+    
+    /* Avatar in room list */
+    .room-host-avatar {
+        width: 40px;
+        height: 40px;
+        margin-right: 12px;
+    }
+    
+    .room-host-avatar.active::after {
+        width: 12px;
+        height: 12px;
+        bottom: 2px;
+        right: 2px;
+    }
+    
+    /* Avatar in navigation */
+    .nav-avatar {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .nav-avatar.active::after {
+        width: 12px;
+        height: 12px;
+        bottom: 2px;
+        right: 2px;
+    }
+  </style>
+</main>
+{% endblock content %}
