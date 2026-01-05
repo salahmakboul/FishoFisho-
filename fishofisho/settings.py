@@ -180,3 +180,10 @@ print(f'DATABASE_URL value: {os.environ.get(\
 DATABASE_URL\, \NOT
 SET\)[:50]}...' if os.environ.get(\DATABASE_URL\) else 'DATABASE_URL: NOT SET')
 print('=' * 60)
+
+# Debug database
+print('=' * 60)
+print('DEBUG: DATABASE_URL exists:', 'DATABASE_URL' in os.environ)
+db_url = os.environ.get('DATABASE_URL', 'NOT SET')
+print('DEBUG: DATABASE_URL length:', len(db_url))
+print('=' * 60)
