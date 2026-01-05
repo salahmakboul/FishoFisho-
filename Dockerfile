@@ -3,5 +3,5 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 COPY . .
-# Run migrations with more verbose output
-CMD ["sh", "-c", "echo Running migrations... && python manage.py migrate --noinput && echo Migrations complete! && echo Starting Gunicorn... && gunicorn fishofisho.wsgi:application --bind 0.0.0.0:${PORT:-8000}"]
+# Use shell form directly
+CMD sh -c "echo Running migrations... && python manage.py migrate --noinput && echo Migrations complete! && echo Starting Gunicorn... && gunicorn fishofisho.wsgi:application --bind 0.0.0.0:${PORT:-8000}"
