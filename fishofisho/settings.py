@@ -175,3 +175,8 @@ print('DEBUG: DATABASE_URL exists:', 'DATABASE_URL' in os.environ)
 db_url = os.environ.get('DATABASE_URL', 'NOT SET')
 print('DEBUG: DATABASE_URL length:', len(db_url))
 print('=' * 60)
+# Force PostgreSQL on Railway
+if "RAILWAY" in os.environ and not os.environ.get("DATABASE_URL"):
+    print("❌ ERROR: Running on Railway but DATABASE_URL not set!")
+    print("Check Railway Variables tab for DATABASE_URL")
+    # Don't exit, just use SQLite for now to see if app works

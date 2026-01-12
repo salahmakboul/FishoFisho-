@@ -1,10 +1,6 @@
 import os
-print("=== DATABASE TEST ===")
-print("DATABASE_URL in env:", "DATABASE_URL" in os.environ)
-db_url = os.environ.get("DATABASE_URL")
-if db_url:
-    print("DATABASE_URL length:", len(db_url))
-    print("First 50 chars:", db_url[:50] if len(db_url) > 50 else db_url)
-else:
-    print("ERROR: DATABASE_URL is empty!")
-    exit(1)
+print("=== ALL RAILWAY ENV VARS ===")
+for key, value in sorted(os.environ.items()):
+    if "RAILWAY" in key or "DATABASE" in key or "URL" in key or key in ["PORT", "DEBUG", "SECRET_KEY"]:
+        print(f"{key}: {value[:50] if value else value}")
+print("=== END ===")
