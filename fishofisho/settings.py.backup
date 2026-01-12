@@ -7,7 +7,6 @@ import os
 from pathlib import Path
 import dj_database_url
 from dotenv import load_dotenv
-import logging
 
 # ========== LOAD ENVIRONMENT ==========
 load_dotenv()
@@ -165,10 +164,22 @@ if IS_RAILWAY:
 
 # ========== DEBUG OUTPUT ==========
 print("=" * 60)
-print("✅ Django settings loaded")
+print(f"✅ Django settings loaded")
 print(f"🔐 DEBUG: {DEBUG}")
 print(f"🌐 ALLOWED_HOSTS: {ALLOWED_HOSTS}")
 print(f"🔒 SSL Redirect: {SECURE_SSL_REDIRECT} (MUST BE False)")
+print(f"🗄️ Database: {DATABASES['default']['ENGINE']}")
+print(f"🤖 Gemini API: {'✅ SET' if GEMINI_API_KEY else '❌ NOT SET'}")
+print("=" * 60)
+print(f"DATABASE_URL from env: {os.environ.get('DATABASE_URL', 'NOT FOUND')}")
+# Debug database URL
+print('=' * 60)
+print(f'DATABASE_URL exists: {\
+DATABASE_URL\ in os.environ}')
+print(f'DATABASE_URL value: {os.environ.get(\
+DATABASE_URL\, \NOT
+SET\)[:50]}...' if os.environ.get(\DATABASE_URL\) else 'DATABASE_URL: NOT SET')
+print('=' * 60)
 
 # Debug database
 print('=' * 60)
@@ -176,33 +187,3 @@ print('DEBUG: DATABASE_URL exists:', 'DATABASE_URL' in os.environ)
 db_url = os.environ.get('DATABASE_URL', 'NOT SET')
 print('DEBUG: DATABASE_URL length:', len(db_url))
 print('=' * 60)
-# Force PostgreSQL on Railway
-if "RAILWAY" in os.environ and not os.environ.get("DATABASE_URL"):
-    print("❌ ERROR: Running on Railway but DATABASE_URL not set!")
-    print("Check Railway Variables tab for DATABASE_URL")
-    # Don't exit, just use SQLite for now to see if app works
-
-
-
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "handlers": {
-        "console": {
-            "class": "logging.StreamHandler",
-        },
-    },
-    "loggers": {
-        "django": {
-            "handlers": ["console"],
-            "level": "INFO",
-        },
-        "playground": {  # Your app name
-            "handlers": ["console"],
-            "level": "DEBUG",
-        },
-    },
-}
-
-# Also force debug mode to see errors
-DEBUG = True
