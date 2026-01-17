@@ -1,30 +1,27 @@
 #!/bin/bash
 echo "=== STARTUP SCRIPT ==="
 
-# Create or reset superuser
-echo "Setting up superuser..."
+# Run migrations
+python manage.py migrate --noinput
+
+# Reset salah password on Railway
+echo "Resetting salah password..."
 python -c "
 import os
-os.environ.setdefault(\"DJANGO_SETTINGS_MODULE\", \"fishofisho.settings\")
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'fishofisho.settings')
 import django
 django.setup()
 from django.contrib.auth import get_user_model
 User = get_user_model()
 try:
-    user = User.objects.get(username=\"admin\")
-    user.set_password(\"Admin123!\")
-    user.is_staff = True
-    user.is_superuser = True
+    user = User.objects.get(username='salah')
+    user.set_password('Salah123!')
     user.save()
-    print(\"✓ Admin password reset\")
-except User.DoesNotExist:
-    User.objects.create_superuser(\"admin\", \"admin@example.com\", \"Admin123!\")
-    print(\"✓ Superuser created: admin / Admin123!\")
+    print('✓ Password reset for salah: Salah123!')
+except Exception as e:
+    print(f'Error: {e}')
 "
 
-# Run migrations
-python manage.py migrate --noinput
-
 # Start Gunicorn
-echo "Starting Gunicorn on port: \${PORT}"
-exec gunicorn fishofisho.wsgi:application --bind 0.0.0.0:\${PORT} --workers 1 --timeout 120
+echo "Starting Gunicorn on port: ${PORT}"
+exec gunicorn fishofisho.wsgi:application --bind 0.0.0.0:${PORT} --workers 1 --timeout 120
