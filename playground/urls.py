@@ -25,7 +25,7 @@ path('start-chat/<str:user_id>/', views.start_chat, name='start-chat'),
 path('delete-conversation/<uuid:conversation_id>/', views.delete_conversation, name='delete-conversation'),
 path('users/', views.users_directory, name='users-directory'),
 path('delete-message/<int:pk>/',views.deleteMessage,name="delete-message"),
-path('test/', views.simple_test, name='test'),
+
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
