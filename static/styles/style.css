@@ -1398,119 +1398,441 @@ input[type="submit"]:hover,
 /* Add this to your style.css */
 
 /* Form Container Styling */
+/* Base Container */
 .form-container {
     min-height: calc(100vh - 100px);
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #FFFFFF;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
     padding: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif;
 }
 
-.form-container>div {
+.form-wrapper {
     width: 100%;
-    max-width: 400px;
+    max-width: 520px;
     margin: 0 auto;
+    animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.form-container form {
+/* Form Container */
+.room-creation-form {
     background: #FFFFFF;
-    border: 1px solid #E0E0E0;
-    border-radius: 12px;
-    padding: 40px 30px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border-radius: 18px;
+    padding: 48px 40px;
+    box-shadow: 
+        0 2px 10px rgba(0, 0, 0, 0.03),
+        0 10px 40px rgba(0, 0, 0, 0.05),
+        0 0 0 1px rgba(0, 0, 0, 0.02);
     display: flex;
     flex-direction: column;
-    align-items: center;
+    backdrop-filter: blur(20px);
+    position: relative;
+    overflow: hidden;
 }
 
-/* Logo/Site Title */
-.form-container form::before {
-    content: "TeamFlow";
-    font-size: 2.5rem;
+.room-creation-form::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0,0,0,0.1), transparent);
+}
+
+/* Form Header */
+.form-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.app-icon {
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(135deg, #f5f5f7 0%, #ffffff 100%);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    box-shadow: 
+        0 2px 8px rgba(0, 0, 0, 0.04),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(0, 0, 0, 0.03);
+}
+
+.form-title {
+    font-size: 28px;
     font-weight: 700;
     color: #000000;
-    margin-bottom: 30px;
-    text-align: center;
-    display: block;
     letter-spacing: -0.5px;
+    margin: 0 0 8px;
+    line-height: 1.2;
 }
 
-/* Form Fields Styling */
-.form-container form .form-group {
-    width: 100%;
-    margin-bottom: 20px;
+.form-subtitle {
+    font-size: 15px;
+    color: #666666;
+    margin: 0;
+    line-height: 1.4;
+    font-weight: 400;
+}
+
+/* Form Fields */
+.form-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    margin-bottom: 40px;
+}
+
+.form-field-group {
     position: relative;
 }
 
-.form-container form .form-group:last-of-type {
-    margin-bottom: 10px;
+.field-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
 }
 
-.form-container form label {
-    display: none;
-    /* Hide Django labels */
+.field-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #000000;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
 }
 
-.form-container form input[type="text"],
-.form-container form input[type="email"],
-.form-container form input[type="password"],
-.form-container form textarea,
-.form-container form select {
-    width: 100%;
-    padding: 14px 16px;
-    border: 1px solid #E0E0E0;
+.required-indicator {
+    color: #FF3B30;
+    font-size: 16px;
+    line-height: 1;
+}
+
+.field-help {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: #666;
+    cursor: help;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.field-help:hover {
+    background: #e0e0e0;
+}
+
+.help-tooltip {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: #000000;
+    color: #ffffff;
+    padding: 8px 12px;
     border-radius: 8px;
+    font-size: 12px;
+    font-weight: 400;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-5px);
+    transition: all 0.2s ease;
+    z-index: 100;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.field-help:hover .help-tooltip {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(5px);
+}
+
+.field-input-container {
+    position: relative;
+}
+
+/* Input Styling */
+.room-creation-form input[type="text"],
+.room-creation-form input[type="email"],
+.room-creation-form input[type="password"],
+.room-creation-form textarea,
+.room-creation-form select {
+    width: 100%;
+    padding: 16px 20px;
+    border: 1.5px solid #E0E0E0;
+    border-radius: 12px;
     background: #FFFFFF;
     color: #000000;
-    font-size: 1rem;
+    font-size: 16px;
+    font-weight: 400;
     outline: none;
-    transition: all 0.2s ease;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03);
+    line-height: 1.4;
+    -webkit-appearance: none;
+    appearance: none;
 }
 
-.form-container form input[type="text"]:focus,
-.form-container form input[type="email"]:focus,
-.form-container form input[type="password"]:focus,
-.form-container form textarea:focus,
-.form-container form select:focus {
+.room-creation-form textarea {
+    min-height: 120px;
+    resize: vertical;
+    line-height: 1.5;
+    padding-right: 40px;
+}
+
+.room-creation-form select {
+    background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%23000000' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 20px center;
+    padding-right: 50px;
+}
+
+.select-arrow {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #000000;
+    font-size: 20px;
+    pointer-events: none;
+}
+
+/* Focus States */
+.room-creation-form input:focus,
+.room-creation-form textarea:focus,
+.room-creation-form select:focus {
     border-color: #000000;
-    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
+    box-shadow: 
+        0 0 0 3px rgba(0, 0, 0, 0.04),
+        inset 0 1px 2px rgba(0, 0, 0, 0.03);
+    transform: translateY(-1px);
 }
 
-.form-container form input[type="text"]::placeholder,
-.form-container form input[type="email"]::placeholder,
-.form-container form input[type="password"]::placeholder {
-    color: #9E9E9E;
-    font-size: 0.95rem;
+/* Placeholder Styling */
+.room-creation-form input::placeholder,
+.room-creation-form textarea::placeholder {
+    color: #999999;
+    font-weight: 400;
 }
 
-/* Submit Button */
-.form-container form input[type="submit"] {
+/* Error States */
+.form-field-group.has-error input,
+.form-field-group.has-error textarea,
+.form-field-group.has-error select {
+    border-color: #FF3B30;
+    background: rgba(255, 59, 48, 0.02);
+}
+
+.field-errors {
+    margin-top: 6px;
+}
+
+.error-message {
+    font-size: 12px;
+    color: #FF3B30;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Character Counter */
+.character-counter {
+    position: absolute;
+    bottom: 10px;
+    right: 20px;
+    font-size: 11px;
+    color: #999999;
+    font-weight: 500;
+    pointer-events: none;
+    transition: color 0.2s ease;
+}
+
+.room-creation-form textarea:focus + .character-counter {
+    color: #000000;
+}
+
+/* Form Actions */
+.form-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 32px;
+}
+
+.submit-button {
     width: 100%;
-    padding: 14px 16px;
-    background: #000000;
+    padding: 18px 24px;
+    background: linear-gradient(180deg, #000000 0%, #1a1a1a 100%);
     color: #FFFFFF;
     border: none;
-    border-radius: 8px;
-    font-size: 1rem;
+    border-radius: 14px;
+    font-size: 17px;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s ease;
-    margin-top: 20px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    letter-spacing: 0.2px;
+    box-shadow: 
+        0 4px 14px rgba(0, 0, 0, 0.1),
+        0 0 0 1px rgba(0, 0, 0, 0.02);
 }
 
-.form-container form input[type="submit"]:hover {
-    background: #212121;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+.submit-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(180deg, #1a1a1a 0%, #2a2a2a 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
-.form-container form input[type="submit"]:active {
+.submit-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 
+        0 8px 24px rgba(0, 0, 0, 0.15),
+        0 0 0 1px rgba(0, 0, 0, 0.02);
+}
+
+.submit-button:hover::before {
+    opacity: 1;
+}
+
+.submit-button:active {
     transform: translateY(0);
+    transition-duration: 0.1s;
 }
 
+.action-hint {
+    text-align: center;
+    font-size: 12px;
+    color: #999999;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    padding: 4px 0;
+}
+
+/* Form Footer */
+.form-footer {
+    margin-top: 32px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.footer-hint {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 12px;
+    color: #666666;
+    font-weight: 400;
+}
+
+.footer-hint svg {
+    flex-shrink: 0;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -200% center;
+    }
+    100% {
+        background-position: 200% center;
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    .room-creation-form {
+        padding: 32px 24px;
+        border-radius: 16px;
+    }
+    
+    .form-title {
+        font-size: 24px;
+    }
+    
+    .form-subtitle {
+        font-size: 14px;
+    }
+    
+    .room-creation-form input[type="text"],
+    .room-creation-form input[type="email"],
+    .room-creation-form input[type="password"],
+    .room-creation-form textarea,
+    .room-creation-form select {
+        padding: 14px 16px;
+        font-size: 15px;
+    }
+    
+    .submit-button {
+        padding: 16px 20px;
+        font-size: 16px;
+    }
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+    .room-creation-form {
+        border: 2px solid #000000;
+    }
+    
+    .room-creation-form input:focus,
+    .room-creation-form textarea:focus,
+    .room-creation-form select:focus {
+        border-width: 2px;
+    }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+    .room-creation-form,
+    .submit-button,
+    .room-creation-form input,
+    .room-creation-form textarea,
+    .room-creation-form select {
+        transition: none;
+    }
+    
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+}
 /* Form Links */
 .form-links {
     width: 100%;
