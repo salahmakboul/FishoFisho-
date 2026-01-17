@@ -18,8 +18,18 @@ from .models import PrivateConversation, PrivateMessage, User
 
 
 def hello(request):
-    return render(request, "hello.html", {"name": "dexter"})
+    try:
+        # Simple response to test
+        from django.http import HttpResponse
 
+        return HttpResponse("HELLO VIEW WORKS!")
+    except Exception as e:
+        # Log error
+        import logging
+
+        logger = logging.getLogger(__name__)
+        logger.error(f"Error in hello view: {e}")
+        raise
 
 # view for displaying a specific chat room and handling message posting within that room.
 def room(request, pk):
