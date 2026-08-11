@@ -111,17 +111,6 @@ class UserProfile(models.Model):
     def __str__(self):
         return f"{self.user.username}'s Profile"
 
-# models.py - Add Chatbot model
-class Chatbot(models.Model):
-    name = models.CharField(max_length=100, default="FishoAI")
-    avatar = models.ImageField(upload_to='chatbots/', blank=True, null=True)
-    is_active = models.BooleanField(default=True)
-    system_prompt = models.TextField(default="You are FishoAI, a helpful assistant for the FishoFisho community. Be friendly, concise, and helpful.")
-    
-    def __str__(self):
-        return self.name
-
-# OR simpler: Just use a constant
 AI_BOT_USERNAME = "FishoAI"
 class PrivateConversation(models.Model):
     """Conversation between two users"""

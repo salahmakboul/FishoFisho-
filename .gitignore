@@ -5,6 +5,10 @@ __pycache__/
 *.so
 .Python
 
+# Virtual environments
+venv/
+myenv/
+
 # Django
 db.sqlite3
 *.log
@@ -16,11 +20,13 @@ db.sqlite3
 # Static files
 /staticfiles/
 
+# Node / frontend
+frontend/node_modules/
+frontend/dist/
+
 # IDE
 .vscode/
 .idea/
 
 # OS
 .DS_Store
-db.sqlite3
-db.sqlite3
