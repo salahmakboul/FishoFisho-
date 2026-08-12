@@ -32,14 +32,9 @@ if not DEBUG and SECRET_KEY == 'django-insecure-change-this-in-production':
     )
 
 # ========== HOST CONFIGURATION ==========
-# FIX: Add exact domain to prevent redirects
-ALLOWED_HOSTS = [
-    'localhost', 
-    '127.0.0.1', 
-    '.railway.app',
-    'fishofisho-production.up.railway.app',  # ADDED: Your exact domain
-    'fishofisho-production.railway.app',     # ADDED: Alternative domain
-]
+# Read ALLOWED_HOSTS from the environment, defaulting to local development hosts
+_allowed_hosts = os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1')
+ALLOWED_HOSTS = [host.strip() for host in _allowed_hosts.split(',') if host.strip()]
 
 # FIX: Always set CSRF_TRUSTED_ORIGINS (not conditional)
 CSRF_TRUSTED_ORIGINS = [
