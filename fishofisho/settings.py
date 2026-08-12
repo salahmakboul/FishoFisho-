@@ -37,11 +37,9 @@ _allowed_hosts = os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1')
 ALLOWED_HOSTS = [host.strip() for host in _allowed_hosts.split(',') if host.strip()]
 
 # FIX: Always set CSRF_TRUSTED_ORIGINS (not conditional)
-CSRF_TRUSTED_ORIGINS = [
-    'https://*.railway.app',
-    'https://fishofisho-production.up.railway.app',
-    'https://fishofisho-production.railway.app',
-]
+# Read CSRF_TRUSTED_ORIGINS from the environment, defaulting to localhost
+_csrf_origins = os.environ.get('DJANGO_CSRF_TRUSTED_ORIGINS', 'http://localhost:5173,http://127.0.0.1:5173')
+CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in _csrf_origins.split(',') if origin.strip()]
 
 # ========== DATABASE ==========
 # Railway provides DATABASE_URL, fallback to SQLite locally
