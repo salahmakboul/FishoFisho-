@@ -7,11 +7,23 @@ from django.conf import settings
 from dotenv import load_dotenv
 import logging
 
+# Imported lazily-safe at module scope: models.py doesn't import ai_helper,
+# so there's no circular-import risk pulling Message in here directly (see
+# build_room_context below).
+from .models import Message
+
 logger = logging.getLogger(__name__)
 
 # Load .env file from project root
 env_path = Path(__file__).resolve().parent.parent / '.env'
 load_dotenv(env_path)
+
+# How many of a room's own recent messages "summarize" is allowed to look
+# at. Keeps the summarize prompt (and the audit trail's
+# prompt_context_message_count) bounded regardless of how old/huge the
+# room's history is — see AIAssistant.build_room_context.
+SUMMARIZE_CONTEXT_LIMIT = 30
+
 
 class AIAssistant:
     def __init__(self):
@@ -260,6 +272,90 @@ class AIAssistant:
             return response
         
         return None  # Don't respond this time
+
+    def build_room_context(self, room, limit=SUMMARIZE_CONTEXT_LIMIT):
+        """Fetch the last `limit` messages of THIS room only, for use as
+        summarize context. Context-boundary rules (see api_views.py's
+        _maybe_trigger_ai_reply and permissions.py):
+
+          - Filtered on `room=room` — never any other room, never a
+            workspace-wide query. The caller passes in the exact Room the
+            trigger happened in; this method has no way to reach outside it.
+          - Excludes `is_deleted=True` messages: a message an admin/author
+            soft-deleted was removed for a reason, so the AI must never
+            quote it back in a summary.
+          - Ordered newest-first then reversed back to chronological order,
+            so the summary reads as an actual conversation transcript.
+
+        Returns a list of (username, body) tuples — never a raw queryset —
+        so callers can't accidentally widen the filter later by chaining
+        onto it.
+        """
+        if room is None:
+            return []
+        qs = (
+            Message.objects.filter(room=room, is_deleted=False)
+            .exclude(body__isnull=True)
+            .exclude(body="")
+            .select_related("user")
+            .order_by("-created")[:limit]
+        )
+        return [(m.user.username if m.user else "someone", m.body) for m in reversed(list(qs))]
+
+    def _get_mock_summary(self, room, context_lines):
+        room_name = room.name if room and hasattr(room, "name") else "this room"
+        if not context_lines:
+            return f"There's nothing to summarize in {room_name} yet."
+        participants = sorted({username for username, _ in context_lines})
+        return (
+            f"Summary of the last {len(context_lines)} message(s) in {room_name}: "
+            f"{', '.join(participants)} chatted about a few things — "
+            f"most recently, {context_lines[-1][0]} said \"{context_lines[-1][1][:80]}\"."
+        )
+
+    def summarize_room(self, room, requested_by):
+        """Summarize the recent history of `room` only — the "@fishoai
+        summarize" command. Builds context via build_room_context (already
+        room-scoped and soft-delete-filtered), then either asks Gemini to
+        condense it or falls back to a mock summary. Returns
+        (response_text, context_message_count) so the caller can record an
+        accurate audit trail even when there was nothing to summarize.
+        """
+        context_lines = self.build_room_context(room)
+        context_count = len(context_lines)
+
+        if not context_lines:
+            return self._get_mock_summary(room, context_lines), context_count
+
+        transcript = "\n".join(f"{username}: {body}" for username, body in context_lines)
+
+        if self.use_real_ai and self.model:
+            try:
+                room_name = room.name if room and hasattr(room, "name") else "this room"
+                prompt = (
+                    "You are FishoAI, an assistant summarizing a chat room for its members.\n"
+                    f'Chat room: "{room_name}"\n'
+                    f"Here are the last {context_count} messages, oldest first:\n"
+                    f"{transcript}\n\n"
+                    "Write a short (3-5 sentence) neutral summary of what was discussed. "
+                    "Do not invent details that aren't in the transcript."
+                )
+                response = self.model.generate_content(
+                    prompt,
+                    generation_config={
+                        "max_output_tokens": 220,
+                        "temperature": 0.4,
+                        "top_p": 0.9,
+                    },
+                )
+                if response and hasattr(response, "text") and response.text:
+                    return response.text.strip(), context_count
+            except Exception as e:
+                print(f"❌ Gemini summarize error: {e}")
+                logger.error(f"Gemini summarize error: {e}")
+
+        return self._get_mock_summary(room, context_lines), context_count
+
 
 # Quick test function
 def test_ai_assistant():

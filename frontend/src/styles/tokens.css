@@ -1,0 +1,120 @@
+/* Design tokens — the only place color, type, and spacing values are defined.
+   Strictly monochrome: black, white, and 6 steps of gray. Nothing else. */
+:root {
+  /* Grayscale (light -> dark) */
+  --white: #ffffff;
+  --gray-50: #f6f6f6;
+  --gray-100: #ebebeb;
+  --gray-200: #d8d8d8;
+  --gray-300: #b8b8b8;
+  --gray-500: #7a7a7a;
+  --gray-700: #454545;
+  --gray-900: #1a1a1a;
+  --black: #000000;
+
+  /* Semantic surfaces */
+  --bg-app: var(--white);
+  --bg-rail: var(--gray-900);
+  --bg-surface: var(--white);
+  --bg-surface-raised: var(--white);
+  --bg-hover: var(--gray-50);
+  --bg-active: var(--gray-100);
+  --bg-inverse: var(--black);
+
+  /* Text */
+  --text-primary: var(--gray-900);
+  --text-secondary: var(--gray-500);
+  --text-on-inverse: var(--white);
+  --text-on-rail: var(--gray-300);
+  --text-on-rail-active: var(--white);
+
+  /* Borders */
+  --border-subtle: var(--gray-100);
+  --border-default: var(--gray-200);
+  --border-strong: var(--gray-900);
+
+  /* Focus ring */
+  --focus-ring: 2px solid var(--black);
+  --focus-ring-offset: 2px;
+
+  /* Type scale */
+  --font-family: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
+  --font-family-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-base: 14px;
+  --text-md: 16px;
+  --text-lg: 20px;
+  --text-xl: 24px;
+  --text-2xl: 32px;
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+
+  /* Semantic display/reading scale — used by marketing surfaces (Landing)
+     that need deliberate weight/line-height/tracking/measure per level,
+     rather than ad-hoc sizes scattered through component CSS. The compact
+     --text-* scale above stays as-is for dense app UI (badges, buttons). */
+  --display-size: clamp(2.25rem, 1.75rem + 2.2vw, 3.5rem);
+  --display-leading: 1.05;
+  --display-weight: var(--fw-bold);
+  --display-tracking: -0.02em;
+  --display-measure: 16ch;
+
+  --heading-size: clamp(1.75rem, 1.55rem + 0.9vw, 2.25rem);
+  --heading-leading: 1.15;
+  --heading-weight: var(--fw-bold);
+  --heading-tracking: -0.01em;
+  --heading-measure: 24ch;
+
+  --subheading-size: 18px;
+  --subheading-leading: 1.35;
+  --subheading-weight: var(--fw-semibold);
+
+  --lead-size: clamp(1.05rem, 0.98rem + 0.3vw, 1.25rem);
+  --lead-leading: 1.6;
+  --lead-weight: var(--fw-regular);
+  --lead-measure: 46ch;
+
+  --body-size: 15px;
+  --body-leading: 1.65;
+  --body-weight: var(--fw-regular);
+  --body-measure: 62ch;
+
+  --label-size: 12px;
+  --label-leading: 1.4;
+  --label-weight: var(--fw-bold);
+  --label-tracking: 0.08em;
+
+  /* Spacing scale (4px base) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+
+  /* Radius */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --radius-full: 999px;
+
+  /* Motion — fast and functional for state changes, longer only for real
+     spatial transitions (a thing visibly moving/morphing from A to B). Every
+     duration below is paired with a decelerating ease so movement feels like
+     it's arriving somewhere, not just linearly interpolating. */
+  --duration-fast: 100ms;
+  --duration-base: 150ms;
+  --duration-micro: 180ms;
+  --duration-moderate: 240ms;
+  --duration-spatial: 420ms;
+  --ease-standard: ease-out;
+  --ease-decel: cubic-bezier(0.16, 1, 0.3, 1);
+}

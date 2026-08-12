@@ -1,0 +1,40 @@
+.count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: var(--radius-full);
+  background: var(--gray-900);
+  color: var(--white);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.countOutline {
+  background: transparent;
+  color: var(--gray-900);
+  border: 1.5px solid var(--gray-900);
+}
+
+.mention {
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.aiTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 1px solid var(--gray-900);
+  border-radius: var(--radius-sm);
+  padding: 1px 5px;
+  color: var(--gray-900);
+}

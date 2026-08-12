@@ -1,0 +1,846 @@
+.page {
+  min-height: 100%;
+  background: var(--bg-app);
+  color: var(--text-primary);
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transition: opacity var(--duration-spatial) var(--ease-decel),
+    transform var(--duration-spatial) var(--ease-decel);
+}
+
+/* Brief continuity transition before "Open workspace" actually navigates —
+   see Landing.tsx's handleEnterApp. Reads as moving forward into the app
+   rather than the page just vanishing. */
+.pageLeaving {
+  opacity: 0;
+  transform: translateY(-10px) scale(0.995);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page {
+    transition: opacity var(--duration-base) var(--ease-standard);
+  }
+  .pageLeaving {
+    transform: none;
+  }
+}
+
+.sectionInner {
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding-left: var(--space-5);
+  padding-right: var(--space-5);
+}
+
+/* ---------------------------------------------------------------- Nav */
+
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--bg-app);
+  border-bottom: 1px solid var(--border-default);
+}
+
+.navInner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: var(--space-3) var(--space-5);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.brandMark {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-md);
+  background: var(--black);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: var(--fw-bold);
+  font-size: var(--text-md);
+  flex-shrink: 0;
+}
+
+.brandName {
+  font-weight: var(--fw-bold);
+  font-size: var(--text-md);
+}
+
+.navLinks {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  flex: 1;
+  padding-left: var(--space-6);
+}
+
+/* Underline slides in from the left on hover/focus rather than snapping on —
+   a small position shift instead of a plain color swap. */
+.navLink {
+  position: relative;
+  display: inline-block;
+  font-size: var(--text-sm);
+  font-weight: var(--fw-medium);
+  color: var(--text-secondary);
+  border-radius: var(--radius-sm);
+  padding-bottom: 2px;
+  transition: color var(--duration-micro) var(--ease-decel);
+}
+
+.navLink::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--duration-micro) var(--ease-decel);
+}
+
+.navLink:hover,
+.navLink:focus-visible {
+  color: var(--text-primary);
+}
+
+.navLink:hover::after,
+.navLink:focus-visible::after {
+  transform: scaleX(1);
+}
+
+.navLink:active {
+  color: var(--text-secondary);
+  opacity: 0.7;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .navLink::after {
+    transition: opacity var(--duration-fast) var(--ease-standard);
+    transform: scaleX(1);
+    opacity: 0;
+  }
+  .navLink:hover::after,
+  .navLink:focus-visible::after {
+    opacity: 1;
+  }
+}
+
+.navActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-left: auto;
+}
+
+/* --------------------------------------------------------------- Hero */
+
+.hero {
+  border-bottom: 1px solid var(--border-default);
+}
+
+.heroInner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 420px);
+  align-items: center;
+  gap: var(--space-7);
+  padding-top: 96px;
+  padding-bottom: 96px;
+}
+
+.eyebrow {
+  font-size: var(--label-size);
+  font-weight: var(--label-weight);
+  letter-spacing: var(--label-tracking);
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-3);
+}
+
+.h1 {
+  font-size: var(--display-size);
+  line-height: var(--display-leading);
+  font-weight: var(--display-weight);
+  letter-spacing: var(--display-tracking);
+  max-width: var(--display-measure);
+}
+
+/* Each visual "line" of the headline reveals independently on load — see
+   .heroReveal below for the staggered-entrance mechanism they share. */
+.h1Line {
+  display: block;
+  opacity: 0;
+  transform: translateY(12px);
+  animation: heroFadeUp var(--duration-spatial) var(--ease-decel) forwards;
+  animation-delay: var(--reveal-delay, 0ms);
+}
+
+.lead {
+  margin-top: var(--space-4);
+  font-size: var(--lead-size);
+  line-height: var(--lead-leading);
+  font-weight: var(--lead-weight);
+  color: var(--text-secondary);
+  max-width: var(--lead-measure);
+  text-align: left;
+}
+
+.heroActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  margin-top: var(--space-6);
+  flex-wrap: wrap;
+}
+
+/* Staggered hero entrance: eyebrow, lead paragraph and the actions row all
+   share this fade-up; the headline's own lines (.h1Line) animate the same
+   way but are timed independently since they sit inside .h1. */
+.heroReveal {
+  opacity: 0;
+  transform: translateY(14px);
+  animation: heroFadeUp var(--duration-spatial) var(--ease-decel) forwards;
+  animation-delay: var(--reveal-delay, 0ms);
+}
+
+@keyframes heroFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .h1Line,
+  .heroReveal {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.heroPrimary {
+  height: 44px;
+  padding: 0 var(--space-5);
+  font-size: var(--text-base);
+}
+
+.heroSecondary {
+  font-size: var(--text-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--text-primary);
+  border-radius: var(--radius-sm);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color var(--duration-micro) var(--ease-decel);
+}
+
+.heroSecondary:hover,
+.heroSecondary:focus-visible {
+  color: var(--text-secondary);
+}
+
+.heroSecondary:active {
+  transform: scale(0.98);
+}
+
+/* Arrow glyph inside primary CTAs — nudges right on hover/focus as a small
+   directional affordance ("this goes forward"). */
+.ctaArrow {
+  display: inline-block;
+  margin-left: var(--space-2);
+  transition: transform var(--duration-micro) var(--ease-decel);
+}
+
+.heroPrimary:hover .ctaArrow,
+.heroPrimary:focus-visible .ctaArrow,
+.closingPrimary:hover .ctaArrow,
+.closingPrimary:focus-visible .ctaArrow {
+  transform: translateX(4px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ctaArrow {
+    transition: none;
+  }
+}
+
+/* ---------------------------------------------------------- Hero visual */
+
+.heroVisual {
+  display: flex;
+  justify-content: center;
+}
+
+/* Mockup fades/lifts in on load, a beat after the hero copy starts, and
+   without any perspective/3D — a plain 2D opacity + translate. */
+.heroVisualIn {
+  opacity: 0;
+  transform: translateY(18px);
+  animation: heroFadeUp var(--duration-spatial) var(--ease-decel) forwards;
+  animation-delay: 160ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .heroVisualIn {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.mockWindow {
+  width: 100%;
+  max-width: 380px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--white);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.mockHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.mockRoomName {
+  font-size: var(--text-sm);
+  font-weight: var(--fw-bold);
+}
+
+.mockLive {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}
+
+/* The one deliberate, perpetual motion on the page: a restrained breathing
+   pulse standing in for "connected right now." Frozen to a static dot for
+   reduced-motion visitors rather than just left un-animated-looking. */
+.mockDot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--gray-900);
+  animation: livePulse 2.4s ease-in-out infinite;
+}
+
+@keyframes livePulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.82);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mockDot {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.mockRoomRow {
+  position: relative;
+  display: flex;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border-subtle);
+  flex-wrap: wrap;
+}
+
+/* Sits behind the active pill and slides/resizes to match it whenever the
+   demo switches tabs — a real spatial transition, so it earns the longer
+   --duration-spatial timing. */
+.mockIndicator {
+  position: absolute;
+  left: 0;
+  top: 0;
+  border-radius: var(--radius-full);
+  background: var(--gray-900);
+  z-index: 0;
+  transition: transform var(--duration-spatial) var(--ease-decel),
+    width var(--duration-spatial) var(--ease-decel),
+    height var(--duration-spatial) var(--ease-decel);
+}
+
+.mockPill {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-default);
+  transition: color var(--duration-moderate) var(--ease-decel),
+    border-color var(--duration-moderate) var(--ease-decel);
+}
+
+.mockPillActive {
+  color: var(--white);
+  border-color: transparent;
+  font-weight: var(--fw-semibold);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mockIndicator {
+    transition: none;
+  }
+  .mockPill {
+    transition: color var(--duration-fast) var(--ease-standard);
+  }
+}
+
+.mockMessages {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4);
+}
+
+/* Simulated message rows enter on their own schedule, driven by the
+   deterministic timer sequence in useLiveDemo — the AI reply is a controlled
+   fade + slight rise, never a typewriter effect. */
+.mockRow {
+  display: flex;
+  gap: var(--space-2);
+  align-items: flex-start;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity var(--duration-moderate) var(--ease-decel),
+    transform var(--duration-moderate) var(--ease-decel);
+}
+
+.mockRowVisible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mockRow {
+    transition: opacity var(--duration-base) var(--ease-standard);
+    transform: none;
+  }
+}
+
+.mockBubbleCol {
+  min-width: 0;
+}
+
+.mockMeta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: 2px;
+}
+
+.mockName {
+  font-size: var(--text-xs);
+  font-weight: var(--fw-bold);
+}
+
+.mockTime {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}
+
+.mockBubble {
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+}
+
+/* ---------------------------------------------------------------- Reveal */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity var(--duration-base) var(--ease-standard),
+    transform var(--duration-base) var(--ease-standard);
+}
+
+.revealVisible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    transition: none;
+    transform: none;
+  }
+}
+
+/* Section headings reveal via a clip-path wipe instead of a plain fade,
+   giving them more presence than the surrounding copy that uses .reveal. */
+.revealMask {
+  opacity: 0;
+  clip-path: inset(0 0 100% 0);
+  transition: clip-path var(--duration-spatial) var(--ease-decel),
+    opacity var(--duration-moderate) var(--ease-decel);
+}
+
+.revealMaskVisible {
+  opacity: 1;
+  clip-path: inset(0 0 0% 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .revealMask {
+    clip-path: inset(0);
+    transition: opacity var(--duration-base) var(--ease-standard);
+  }
+}
+
+/* --------------------------------------------------------- Capabilities */
+
+.capabilities {
+  border-bottom: 1px solid var(--border-default);
+}
+
+.capabilities .sectionInner,
+.trust .sectionInner,
+.closing .sectionInner {
+  padding-top: 80px;
+  padding-bottom: 80px;
+}
+
+.h2 {
+  font-size: var(--heading-size);
+  line-height: var(--heading-leading);
+  font-weight: var(--heading-weight);
+  letter-spacing: var(--heading-tracking);
+  max-width: var(--heading-measure);
+}
+
+.capGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-6);
+  margin-top: var(--space-6);
+}
+
+/* Lifts a couple px on hover/focus; the mark inside transforms on its own
+   timing rather than the whole card scaling uniformly. */
+.capCard {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  border-radius: var(--radius-md);
+  transition: transform var(--duration-moderate) var(--ease-decel);
+}
+
+.capCard:hover,
+.capCard:focus-within {
+  transform: translateY(-3px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .capCard {
+    transition: none;
+  }
+  .capCard:hover,
+  .capCard:focus-within {
+    transform: none;
+  }
+}
+
+.capMark {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  border: 1.5px solid var(--border-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-md);
+  font-weight: var(--fw-bold);
+  margin-bottom: var(--space-2);
+  transition: transform var(--duration-moderate) var(--ease-decel),
+    background-color var(--duration-moderate) var(--ease-decel),
+    color var(--duration-moderate) var(--ease-decel),
+    border-color var(--duration-moderate) var(--ease-decel);
+}
+
+.capCard:hover .capMark,
+.capCard:focus-within .capMark {
+  transform: translate(3px, -3px);
+  background: var(--black);
+  color: var(--white);
+  border-color: var(--black);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .capMark {
+    transition: background-color var(--duration-base) var(--ease-standard),
+      color var(--duration-base) var(--ease-standard),
+      border-color var(--duration-base) var(--ease-standard);
+  }
+  .capCard:hover .capMark,
+  .capCard:focus-within .capMark {
+    transform: none;
+  }
+}
+
+.capMarkText {
+  font-size: var(--text-xs);
+  letter-spacing: 0.04em;
+}
+
+.capTitle {
+  font-size: var(--subheading-size);
+  line-height: var(--subheading-leading);
+  font-weight: var(--subheading-weight);
+}
+
+.capBody {
+  font-size: var(--body-size);
+  line-height: var(--body-leading);
+  font-weight: var(--body-weight);
+  color: var(--text-secondary);
+  max-width: 38ch;
+}
+
+/* ---------------------------------------------------------------- Trust */
+
+.trust {
+  border-bottom: 1px solid var(--border-default);
+  background: var(--bg-hover);
+}
+
+.trustLabel {
+  font-size: var(--label-size);
+  font-weight: var(--label-weight);
+  letter-spacing: var(--label-tracking);
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.statRow {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-6);
+  margin-top: var(--space-4);
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border-strong);
+}
+
+.statNum {
+  font-size: var(--text-xl);
+  font-weight: var(--fw-bold);
+  letter-spacing: -0.01em;
+}
+
+.statCaption {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.trustNote {
+  margin-top: var(--space-6);
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+/* -------------------------------------------------------------- Closing */
+
+.closing {
+  background: var(--bg-inverse);
+  color: var(--text-on-inverse);
+}
+
+.closingTitle {
+  font-size: var(--heading-size);
+  line-height: var(--heading-leading);
+  font-weight: var(--heading-weight);
+  letter-spacing: var(--heading-tracking);
+}
+
+.closingBody {
+  margin-top: var(--space-3);
+  font-size: var(--lead-size);
+  line-height: var(--body-leading);
+  color: var(--gray-300);
+  max-width: var(--lead-measure);
+}
+
+.closingActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  margin-top: var(--space-6);
+  flex-wrap: wrap;
+}
+
+.closingPrimary {
+  height: 44px;
+  padding: 0 var(--space-5);
+  font-size: var(--text-base);
+}
+
+.closingSecondary {
+  font-size: var(--text-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--white);
+  border-radius: var(--radius-sm);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: opacity var(--duration-micro) var(--ease-decel);
+}
+
+.closingSecondary:hover,
+.closingSecondary:focus-visible {
+  opacity: 0.75;
+}
+
+.closingSecondary:active {
+  transform: scale(0.98);
+}
+
+/* --------------------------------------------------------------- Footer */
+
+.footer {
+  border-top: 1px solid var(--border-default);
+}
+
+.footerInner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding-top: var(--space-5);
+  padding-bottom: var(--space-5);
+  flex-wrap: wrap;
+}
+
+.footerBrand {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.footerLinks {
+  display: flex;
+  gap: var(--space-5);
+}
+
+.footerLink {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  transition: color var(--duration-micro) var(--ease-decel);
+}
+
+.footerLink:hover,
+.footerLink:focus-visible {
+  color: var(--text-primary);
+}
+
+.footerLink:active {
+  opacity: 0.7;
+}
+
+/* ---------------------------------------------------------- Responsive */
+
+@media (max-width: 880px) {
+  .heroInner {
+    grid-template-columns: 1fr;
+    padding-top: var(--space-7);
+    padding-bottom: var(--space-7);
+    gap: var(--space-6);
+  }
+
+  .heroVisual {
+    order: -1;
+  }
+
+  .h1 {
+    max-width: none;
+  }
+
+  .capGrid,
+  .statRow {
+    grid-template-columns: 1fr;
+  }
+
+  .capabilities .sectionInner,
+  .trust .sectionInner,
+  .closing .sectionInner {
+    padding-top: var(--space-7);
+    padding-bottom: var(--space-7);
+  }
+}
+
+@media (max-width: 720px) {
+  .navLinks {
+    display: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .sectionInner {
+    padding-left: var(--space-4);
+    padding-right: var(--space-4);
+  }
+
+  .navInner {
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .h1 {
+    font-size: 30px;
+  }
+
+  .lead {
+    font-size: var(--text-md);
+  }
+
+  .navActions > a:first-child {
+    display: none;
+  }
+
+  .heroActions {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+
+  .mockWindow {
+    max-width: 100%;
+  }
+}

@@ -19,10 +19,15 @@ from django.conf import settings
 from django.urls import include, path
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('',include('playground.urls')),
-] 
+]
 if settings.DEBUG:
     import debug_toolbar
     urlpatterns += [
         path("__debug__/", include(debug_toolbar.urls)),
     ]
+# playground.urls ends in a catch-all (SPA shell for client-side routing),
+# so it MUST be included last — anything above needs to keep matching its
+# own prefix first (admin/, __debug__/).
+urlpatterns += [
+    path('', include('playground.urls')),
+]
