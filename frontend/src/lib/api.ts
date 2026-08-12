@@ -35,7 +35,7 @@ import type {
 // function has a real `fetch`/WebSocket implementation behind the flag, so
 // switching is a one-line change, not a rewrite.
 // ---------------------------------------------------------------------------
-export const USE_MOCK = import.meta.env.VITE_USE_MOCK !== "false";
+export const USE_MOCK = import.meta.env.VITE_USE_MOCK === "true";
 
 const API_BASE = "/api/v1";
 
